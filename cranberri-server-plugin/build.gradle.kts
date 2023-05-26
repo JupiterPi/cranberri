@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.9")
 }
 
 kotlin {

@@ -4,3 +4,8 @@ main: jupiterpi.cranberri.CranberriPlugin
 description: Cranberri Server Plugin
 author: JupiterPi
 api-version: 1.19
+
+commands:
+  cranberri:
+    description: Gives you the Cranberri tool.
+    usage: /cranberri

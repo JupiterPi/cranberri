@@ -12,6 +12,11 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 
+val cranberriLettering = Component.join(JoinConfiguration.noSeparators(),
+    Component.text("Cranberri", Style.style(TextColor.color(Color.WHITE.asRGB()), TextDecoration.BOLD)),
+    Component.text(".", Style.style(TextColor.color(Color.RED.asRGB()), TextDecoration.BOLD)),
+)
+
 class CranberriPlugin : JavaPlugin(), Listener {
 
     override fun onEnable() {
@@ -19,18 +24,28 @@ class CranberriPlugin : JavaPlugin(), Listener {
 
         Bukkit.getPluginManager().registerEvents(this, this)
 
-        server.consoleSender.sendMessage(
-            Component.join(JoinConfiguration.noSeparators(),
-                Component.text("Cranberri", Style.style(TextColor.color(Color.WHITE.asRGB()), TextDecoration.BOLD)),
-                Component.text(".", Style.style(TextColor.color(Color.RED.asRGB()), TextDecoration.BOLD)),
-                Component.text(" enabled")
-            )
-        )
+        server.consoleSender.sendMessage(Component.join(JoinConfiguration.noSeparators(),
+            cranberriLettering,
+            Component.text(" enabled")
+        ))
+
+        // cranberri tool
+
+        getCommand("cranberri")!!.setExecutor(cranberriToolCommand)
+        Bukkit.getPluginManager().registerEvents(cranberriToolListener, this)
+
+        // computers
+
+        Bukkit.getScheduler().runTaskTimer(this, computersStatusProvider, 0, 10)
+        Bukkit.getPluginManager().registerEvents(computersListener, this)
     }
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        event.player.sendMessage(Component.text("Hello, ${event.player.name}, welcome to Cranberri."))
+        event.player.sendMessage(Component.join(JoinConfiguration.noSeparators(),
+            Component.text("Hello ${event.player.name}, welcome to "),
+            cranberriLettering
+        ))
     }
 
 }
