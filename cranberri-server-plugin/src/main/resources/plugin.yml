@@ -1,0 +1,6 @@
+name: CranberriPlugin
+version: 1.0.0
+main: jupiterpi.cranberri.CranberriPlugin
+description: Cranberri Server Plugin
+author: JupiterPi
+api-version: 1.19
