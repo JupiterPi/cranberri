@@ -8,4 +8,5 @@ api-version: 1.19
 commands:
   cranberri:
     description: Gives you the Cranberri tool.
-    usage: /cranberri
+    usage: /cranberri, /cranberri (tool|logger)
+    aliases: [cb]

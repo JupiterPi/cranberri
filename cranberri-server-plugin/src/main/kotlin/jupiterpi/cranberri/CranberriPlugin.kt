@@ -1,5 +1,8 @@
 package jupiterpi.cranberri
 
+import jupiterpi.cranberri.tools.computerToolListener
+import jupiterpi.cranberri.tools.loggerToolListener
+import jupiterpi.cranberri.tools.toolsCommand
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.Style
@@ -29,18 +32,20 @@ class CranberriPlugin : JavaPlugin(), Listener {
             Component.text(" enabled")
         ))
 
-        // cranberri tool
+        // tools
 
-        getCommand("cranberri")!!.setExecutor(cranberriToolCommand)
-        Bukkit.getPluginManager().registerEvents(cranberriToolListener, this)
+        getCommand("cranberri")!!.setExecutor(toolsCommand)
+        Bukkit.getPluginManager().registerEvents(loggerToolListener, this)
+        Bukkit.getPluginManager().registerEvents(computerToolListener, this)
 
         // computers
 
-        Bukkit.getScheduler().runTaskTimer(this, computersStatusProvider, 0, 10)
+        Bukkit.getScheduler().runTaskTimer(this, computersStatusParticleSpawner, 0, 10)
         Bukkit.getPluginManager().registerEvents(computersListener, this)
     }
 
     @EventHandler
+    @Suppress("unused")
     fun onPlayerJoin(event: PlayerJoinEvent) {
         event.player.sendMessage(Component.join(JoinConfiguration.noSeparators(),
             Component.text("Hello ${event.player.name}, welcome to "),

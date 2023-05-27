@@ -3,6 +3,7 @@ package jupiterpi.cranberri
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane
+import jupiterpi.cranberri.tools.isLoggerToolItem
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
@@ -11,6 +12,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Particle.DustOptions
+import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -19,6 +21,8 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
+
+val COMPUTER_MATERIAL = Material.TARGET
 
 class Computer(
     val location: Location,
@@ -60,25 +64,37 @@ enum class ComputerStatus(
 
 object Computers {
     val computers = mutableListOf<Computer>()
+
+    fun createComputer(block: Block): Computer {
+        block.type = COMPUTER_MATERIAL
+        return Computer(block.location).also { computers += it }
+    }
+}
+
+fun getComputerBlock(block: Block?): Computer? {
+    if (block?.type != COMPUTER_MATERIAL) return null
+    return Computers.computers.singleOrNull { it.location == block.location }
 }
 
 val computersListener = object : Listener {
     @EventHandler
-    fun onBlockBreak(event: BlockBreakEvent) {
+    @Suppress("unused")
+    fun deleteComputerOnBreak(event: BlockBreakEvent) {
         val brokenComputer = Computers.computers.filter { it.location == event.block.location }
         Computers.computers.removeAll(brokenComputer)
     }
 
     @EventHandler
-    fun onRightClick(event: PlayerInteractEvent) {
+    @Suppress("unused")
+    fun rightClickToOpenConfigurationGui(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
-        if (event.clickedBlock?.type != Material.TARGET) return
-        Computers.computers.singleOrNull { it.location == event.clickedBlock!!.location }?.openConfigurationGui(event.player)
+        if (isLoggerToolItem(event.item)) return
+        getComputerBlock(event.clickedBlock)?.openConfigurationGui(event.player) ?: return
         event.isCancelled = true
     }
 }
 
-val computersStatusProvider = {
+val computersStatusParticleSpawner = {
     Computers.computers.forEach {
         it.location.world.spawnParticle(
             Particle.REDSTONE,
