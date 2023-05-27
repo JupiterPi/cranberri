@@ -1,4 +1,4 @@
-package util
+package jupiterpi.cranberri.util
 
 import org.bukkit.Location
 

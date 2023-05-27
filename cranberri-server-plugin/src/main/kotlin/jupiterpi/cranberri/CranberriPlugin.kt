@@ -14,11 +14,8 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
-import util.DATA_ROOT
-import util.TextFile
-import java.io.BufferedWriter
-import java.io.FileWriter
-import java.nio.file.Paths
+import jupiterpi.cranberri.util.DATA_ROOT
+import jupiterpi.cranberri.util.TextFile
 
 val cranberriLettering = Component.join(JoinConfiguration.noSeparators(),
     Component.text("Cranberri", Style.style(TextColor.color(Color.WHITE.asRGB()), TextDecoration.BOLD)),

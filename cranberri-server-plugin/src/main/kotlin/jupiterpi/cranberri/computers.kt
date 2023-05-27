@@ -21,10 +21,10 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
-import util.DATA_ROOT
-import util.TextFile
-import util.deserializeLocationFromString
-import util.serializeToString
+import jupiterpi.cranberri.util.DATA_ROOT
+import jupiterpi.cranberri.util.TextFile
+import jupiterpi.cranberri.util.deserializeLocationFromString
+import jupiterpi.cranberri.util.serializeToString
 
 val COMPUTER_MATERIAL = Material.TARGET
 
