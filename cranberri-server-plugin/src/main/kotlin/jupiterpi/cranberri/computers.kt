@@ -21,6 +21,10 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
+import util.DATA_ROOT
+import util.TextFile
+import util.deserializeLocationFromString
+import util.serializeToString
 
 val COMPUTER_MATERIAL = Material.TARGET
 
@@ -68,6 +72,26 @@ object Computers {
     fun createComputer(block: Block): Computer {
         block.type = COMPUTER_MATERIAL
         return Computer(block.location).also { computers += it }
+    }
+
+    // persistence
+
+    private const val PERSISTENCE_FILE = "$DATA_ROOT/computers.csv"
+
+    fun load() {
+        TextFile.readCsvFile(PERSISTENCE_FILE).forEach {
+            computers += Computer(
+                deserializeLocationFromString(it[0]),
+                ComputerStatus.valueOf(it[1])
+            )
+        }
+    }
+
+    fun save() {
+        TextFile.writeCsvFile(PERSISTENCE_FILE, computers.map { listOf(
+            it.location.serializeToString(),
+            it.status.toString()
+        ) })
     }
 }
 

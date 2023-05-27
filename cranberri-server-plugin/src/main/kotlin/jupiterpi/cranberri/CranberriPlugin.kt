@@ -33,7 +33,6 @@ class CranberriPlugin : JavaPlugin(), Listener {
         TextFile.createPath(DATA_ROOT)
 
         Bukkit.getPluginManager().registerEvents(this, this)
-
         server.consoleSender.sendMessage(Component.join(JoinConfiguration.noSeparators(),
             cranberriLettering,
             Component.text(" enabled")
@@ -47,8 +46,14 @@ class CranberriPlugin : JavaPlugin(), Listener {
 
         // computers
 
+        Computers.load()
+
         Bukkit.getScheduler().runTaskTimer(this, computersStatusParticleSpawner, 0, 10)
         Bukkit.getPluginManager().registerEvents(computersListener, this)
+    }
+
+    override fun onDisable() {
+        Computers.save()
     }
 
     @EventHandler
