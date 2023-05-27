@@ -14,6 +14,11 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
+import util.DATA_ROOT
+import util.TextFile
+import java.io.BufferedWriter
+import java.io.FileWriter
+import java.nio.file.Paths
 
 val cranberriLettering = Component.join(JoinConfiguration.noSeparators(),
     Component.text("Cranberri", Style.style(TextColor.color(Color.WHITE.asRGB()), TextDecoration.BOLD)),
@@ -24,6 +29,8 @@ class CranberriPlugin : JavaPlugin(), Listener {
 
     override fun onEnable() {
         plugin = this
+
+        TextFile.createPath(DATA_ROOT)
 
         Bukkit.getPluginManager().registerEvents(this, this)
 
