@@ -54,7 +54,7 @@ enum class ComputerStatus(
     NOT_CONFIGURED(Color.GRAY, Material.GRAY_WOOL, "Not configured"),
     PINS_ERROR(Color.BLACK, Material.BLACK_WOOL, "Error with pins"),
     OFF(Color.WHITE, Material.WHITE_WOOL, "Off"),
-    ON(Color.GREEN, Material.GREEN_WOOL, "On"),
+    ON(Color.LIME, Material.LIME_WOOL, "On"),
     ERROR(Color.RED, Material.RED_WOOL, "Error!")
 }
 
@@ -80,17 +80,10 @@ val computersListener = object : Listener {
 
 val computersStatusProvider = {
     Computers.computers.forEach {
-        val color = when(it.status) {
-            ComputerStatus.NOT_CONFIGURED -> Color.GRAY
-            ComputerStatus.PINS_ERROR -> Color.BLACK
-            ComputerStatus.OFF -> Color.WHITE
-            ComputerStatus.ON -> Color.GREEN
-            ComputerStatus.ERROR -> Color.RED
-        }
         it.location.world.spawnParticle(
             Particle.REDSTONE,
             it.location.clone().add(Vector(0.5, 1.1, 0.5)), 20,
-            DustOptions(color, 1f)
+            DustOptions(it.status.color, 1f)
         )
     }
 }
