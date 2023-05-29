@@ -4,23 +4,29 @@ import jupiterpi.cranberri.cranberriLettering
 import jupiterpi.cranberri.getComputerBlock
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.JoinConfiguration
+import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 
 val loggerToolItem get() = ItemStack(Material.SPYGLASS).also { item ->
     item.itemMeta = item.itemMeta.also {
         it.displayName(Component.join(JoinConfiguration.noSeparators(),
             cranberriLettering,
-            Component.text(" Logger Tool")
+            Component.text(" Logger Tool", Style.style(TextColor.color(255, 255, 255)))
         ))
         it.lore(listOf(
             Component.text("Right click on computer for logs."),
             Component.text("Right click for options.")
         ))
+        it.addEnchant(Enchantment.LUCK, 1, false)
+        it.addItemFlags(ItemFlag.HIDE_ENCHANTS)
     }
 }
 
