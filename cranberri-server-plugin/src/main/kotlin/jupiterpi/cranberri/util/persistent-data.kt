@@ -7,6 +7,8 @@ const val DATA_ROOT = "world/cranberri_data"
 class TextFile(val lines: List<String>) {
     val file = lines.joinToString("\n")
 
+    constructor(file: String) : this(file.split(Regex("(\\r\\n|\\r|\\n)")))
+
     companion object {
 
         // read
@@ -27,26 +29,22 @@ class TextFile(val lines: List<String>) {
         private fun readFile(inputStream: InputStream)
         = TextFile(BufferedReader(InputStreamReader(inputStream)).lines().toList())
 
-        // write
+        // (write)
 
-        fun writeFile(path: String, lines: List<String>) {
-            writeFile(File(path).also { if (!it.exists()) it.createNewFile() }, lines)
-        }
+        fun csv(data: List<List<String>>) = TextFile(data.map { it.joinToString(";") })
 
-        fun writeCsvFile(path: String, data: List<List<String>>) {
-            writeFile(path, data.map { it.joinToString(";") })
-        }
+        fun createPath(path: String) = File(path).mkdirs()
 
-        fun writeFile(file: File, lines: List<String>) {
-            BufferedWriter(FileWriter(file)).let {
-                it.write(lines.joinToString("\n"))
-                it.close()
-            }
-        }
+    }
 
-        fun createPath(path: String) {
-            File(path).mkdirs()
-        }
+    // write
 
+    fun writeFile(path: String)
+    = writeFile(File(path).also { if (!it.exists()) it.createNewFile() })
+
+    fun writeFile(file: File)
+    = BufferedWriter(FileWriter(file)).let {
+        it.write(this.file)
+        it.close()
     }
 }

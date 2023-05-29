@@ -88,10 +88,10 @@ object Computers {
     }
 
     fun save() {
-        TextFile.writeCsvFile(PERSISTENCE_FILE, computers.map { listOf(
+        TextFile.csv(computers.map { listOf(
             it.location.serializeToString(),
             it.status.toString()
-        ) })
+        ) }).writeFile(PERSISTENCE_FILE)
     }
 }
 
