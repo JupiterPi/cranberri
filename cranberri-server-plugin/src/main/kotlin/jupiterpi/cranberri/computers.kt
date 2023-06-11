@@ -1,10 +1,13 @@
 package jupiterpi.cranberri
 
+import jupiterpi.cranberri.runtime.Script
 import jupiterpi.cranberri.tools.isLoggerToolItem
+import jupiterpi.cranberri.tools.loggingSessions
 import jupiterpi.cranberri.util.DATA_ROOT
 import jupiterpi.cranberri.util.TextFile
 import jupiterpi.cranberri.util.deserializeLocationFromString
 import jupiterpi.cranberri.util.serializeToString
+import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
@@ -22,10 +25,10 @@ val COMPUTER_MATERIAL = Material.TARGET
 
 class Computer(
     val location: Location,
-    var activate: Boolean = false,
+    activate: Boolean = false,
     var script: String? = null,
 ) {
-    val status get() = if (activate) Status.ON else Status.OFF
+    var status = Status.OFF
 
     enum class Status(
         val color: Color,
@@ -37,6 +40,35 @@ class Computer(
         OFF(Color.WHITE, Material.WHITE_WOOL, "Off"),
         ON(Color.LIME, Material.LIME_WOOL, "On"),
         ERROR(Color.RED, Material.RED_WOOL, "Error!")
+    }
+
+    var runningScript: Script? = null
+
+    init {
+        if (activate) activate()
+    }
+    fun activate() {
+        if (script != null) {
+            status = Status.ON
+
+            val projectName = script!!.split(":")[0]
+            val scriptName = script!!.split(":")[1]
+
+            Bukkit.getScheduler().runTaskAsynchronously(plugin) { _ ->
+                runningScript = Script.compile(projectName, scriptName)
+                runningScript?.invokeSetup()
+                Bukkit.getScheduler().runTaskTimer(plugin, { task ->
+                    if (runningScript == null) task.cancel()
+                    runningScript?.invokeTick()
+                }, 0, 20)
+            }
+        }
+    }
+    fun deactivate() {
+        status = Status.OFF
+
+        loggingSessions.filterValues { it == runningScript }.keys.forEach { loggingSessions.remove(it) }
+        runningScript = null
     }
 }
 
@@ -65,7 +97,7 @@ object Computers {
     fun save() {
         TextFile.csv(computers.map { listOf(
             it.location.serializeToString(),
-            it.activate.toString(),
+            (it.status == Computer.Status.ON).toString(),
             it.script.toString(),
         ) }).writeFile(PERSISTENCE_FILE)
     }

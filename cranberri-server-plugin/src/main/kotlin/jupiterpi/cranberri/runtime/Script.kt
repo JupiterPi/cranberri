@@ -7,17 +7,15 @@ import org.xeustechnologies.jcl.JclObjectFactory
 import java.lang.reflect.Method
 import java.util.UUID
 
-val scripts = listOf<Script>()
-
 class Script private constructor(
     file: String,
-    private val projectName: String,
+    val projectName: String,
     private val instanceId: String,
-    private val script: String,
+    val scriptName: String,
 ) {
     companion object {
         fun compile(projectName: String, script: String): Script {
-            val instanceId = UUID.randomUUID().toString()
+            val instanceId = UUID.randomUUID().toString().replace("-", "")
             ProjectCompiler.compileProject(projectName, instanceId)
             return Script("$projectName-$instanceId.jar", projectName, instanceId, script)
         }
@@ -27,14 +25,13 @@ class Script private constructor(
     private val setup: Method?
     private val tick: Method?
 
-    val scriptClassName get() = "cranberri_project_$projectName.instance_$instanceId.script_$script"
+    val scriptClassName get() = "cranberri_project_$projectName.instance_$instanceId.script_$scriptName"
 
     init {
-        val jcl = JarClassLoader().also { it.add(file) }
+        val jcl = JarClassLoader().also { it.add("$PROJECTS_OUT_ROOT/$file") }
         val scriptClass = JclObjectFactory.getInstance().create(jcl, scriptClassName).javaClass
 
         if (scriptClass.isAnnotationPresent(jupiterpi.cranberri.runtime.api.Script::class.java)) {
-            val scriptName = scriptClass.getAnnotation(jupiterpi.cranberri.runtime.api.Script::class.java).name
             scriptInstance = scriptClass.getConstructor().newInstance()
 
             setup = scriptClass.methods.singleOrNull { it.isAnnotationPresent(Setup::class.java) }
@@ -44,4 +41,10 @@ class Script private constructor(
 
     fun invokeSetup() { setup?.invoke(scriptInstance) }
     fun invokeTick() { tick?.invoke(scriptInstance) }
+
+    val loggers = mutableListOf<Logger>()
 }
+
+class Logger(
+    val out: (String) -> Unit,
+)

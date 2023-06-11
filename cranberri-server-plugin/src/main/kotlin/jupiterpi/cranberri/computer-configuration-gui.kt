@@ -20,9 +20,8 @@ fun Computer.openConfigurationGui(player: Player) {
             item.itemMeta = item.itemMeta.also { it.displayName(Component.text(status.displayName, Style.style(TextColor.color(status.color.asRGB())))) }
         }
     ) {
-        println("Clicked, activate: $activate, status: $status")
-        activate = !activate
-        println("activate: $activate, status: $status")
+        if (status == Computer.Status.OFF) activate()
+        else if (status == Computer.Status.ON) deactivate()
         openConfigurationGui(player)
     }
 
@@ -57,7 +56,6 @@ fun Computer.openConfigurationGui(player: Player) {
                     }
                 }
             ) {
-                println("rename text is blank: " + renameText.isBlank())
                 if (renameText.isBlank()) script = null
                 else script = (if (renameText == "<none>") null else renameText)
                 openConfigurationGui(player)

@@ -2,18 +2,22 @@ package jupiterpi.cranberri.tools
 
 import jupiterpi.cranberri.cranberriLettering
 import jupiterpi.cranberri.getComputerBlock
+import jupiterpi.cranberri.runtime.Script
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+
+val loggingSessions = mutableMapOf<Player, Script>()
 
 val loggerToolItem get() = ItemStack(Material.SPYGLASS).also { item ->
     item.itemMeta = item.itemMeta.also {
@@ -42,8 +46,14 @@ val loggerToolListener = object : Listener {
 
         val computer = getComputerBlock(event.clickedBlock)
         if (computer != null) {
-            event.player.sendMessage("Showing logs for computer")
+            if (computer.runningScript != null) {
+                loggingSessions[event.player] = computer.runningScript!!
+                event.player.sendMessage("Showing logs for computer running ${computer.runningScript!!.projectName}:${computer.runningScript!!.scriptName}")
+            } else {
+                event.player.sendMessage("Computer doesn't have a running script!")
+            }
         } else {
+            loggingSessions.remove(event.player)
             event.player.sendMessage("Closing logs")
         }
 

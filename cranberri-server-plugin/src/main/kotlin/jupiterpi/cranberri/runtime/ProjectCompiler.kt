@@ -3,8 +3,8 @@ package jupiterpi.cranberri.runtime
 import jupiterpi.cranberri.util.TextFile
 import java.io.File
 
-private const val PROJECTS_ROOT = "cranberri_projects"
-private const val PROJECTS_OUT_ROOT = "cranberri_projects-out"
+const val PROJECTS_ROOT = "cranberri_projects"
+const val PROJECTS_OUT_ROOT = "cranberri_projects-out"
 
 private const val API_JAR = "plugins/cranberri-server-plugin-1.0-SNAPSHOT-all.jar"
 
@@ -30,7 +30,6 @@ object ProjectCompiler {
             import jupiterpi.cranberri.runtime.api.IO.writePin
             import jupiterpi.cranberri.runtime.api.IO.readPin
             import jupiterpi.cranberri.runtime.api.IO.log
-            import jupiterpi.cranberri.runtime.api.IO.test
             import jupiterpi.cranberri.runtime.api.IO.PinMode.*
             import jupiterpi.cranberri.runtime.api.IO.PinValue.*
         """.trimIndent()

@@ -1,7 +1,8 @@
 package jupiterpi.cranberri.runtime.api
 
-import jupiterpi.cranberri.runtime.Script
-import jupiterpi.cranberri.runtime.scripts
+import jupiterpi.cranberri.Computer
+import jupiterpi.cranberri.Computers
+import jupiterpi.cranberri.tools.loggingSessions
 
 @Suppress("unused")
 object IO {
@@ -9,7 +10,12 @@ object IO {
     private const val PINS_PREFIX = "[IO] "
 
     private fun out(prefix: String, str: String) {
-        println("$prefix $str")
+        val msg = "$prefix $str"
+
+        println(msg)
+
+        val computer = getComputer()
+        loggingSessions.filterValues { it == computer.runningScript!! }.keys.forEach { it.sendMessage(msg) }
     }
 
     // logging
@@ -18,7 +24,7 @@ object IO {
         out(LOGGER_PREFIX, msg)
     }
     fun log(i: Int) {
-        log(i.toString() + " [${getScript()}]")
+        log(i.toString() + " [${getComputer()}]")
     }
 
     // pins io
@@ -52,14 +58,10 @@ object IO {
         return PinValue.HIGH  //TODO implement
     }
 
-    // test
+    // ...
 
-    fun test() {
-        out(LOGGER_PREFIX, getScript().scriptClassName)
-    }
-
-    private fun getScript(): Script {
+    private fun getComputer(): Computer {
         val className = Thread.currentThread().stackTrace.single { it.className.startsWith("cranberri_project_") }.className
-        return scripts.single { className.startsWith(it.scriptClassName) }
+        return Computers.computers.single { it.runningScript != null && className.startsWith(it.runningScript!!.scriptClassName) }
     }
 }
