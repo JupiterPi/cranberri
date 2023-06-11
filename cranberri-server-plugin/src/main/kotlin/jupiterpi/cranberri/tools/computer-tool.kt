@@ -2,6 +2,7 @@ package jupiterpi.cranberri.tools
 
 import jupiterpi.cranberri.Computers
 import jupiterpi.cranberri.cranberriLettering
+import jupiterpi.cranberri.openConfigurationGui
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.Style

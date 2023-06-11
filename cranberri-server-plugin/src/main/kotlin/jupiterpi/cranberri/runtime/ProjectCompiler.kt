@@ -3,8 +3,8 @@ package jupiterpi.cranberri.runtime
 import jupiterpi.cranberri.util.TextFile
 import java.io.File
 
-private const val PROJECTS_ROOT = "projects"
-private const val PROJECTS_OUT_ROOT = "projects-out"
+private const val PROJECTS_ROOT = "cranberri_projects"
+private const val PROJECTS_OUT_ROOT = "cranberri_projects-out"
 
 private const val API_JAR = "plugins/cranberri-server-plugin-1.0-SNAPSHOT-all.jar"
 

@@ -1,69 +1,43 @@
 package jupiterpi.cranberri
 
-import com.github.stefvanschie.inventoryframework.gui.GuiItem
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane
 import jupiterpi.cranberri.tools.isLoggerToolItem
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.Style
-import net.kyori.adventure.text.format.TextColor
+import jupiterpi.cranberri.util.DATA_ROOT
+import jupiterpi.cranberri.util.TextFile
+import jupiterpi.cranberri.util.deserializeLocationFromString
+import jupiterpi.cranberri.util.serializeToString
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Particle.DustOptions
 import org.bukkit.block.Block
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
-import jupiterpi.cranberri.util.DATA_ROOT
-import jupiterpi.cranberri.util.TextFile
-import jupiterpi.cranberri.util.deserializeLocationFromString
-import jupiterpi.cranberri.util.serializeToString
 
 val COMPUTER_MATERIAL = Material.TARGET
 
 class Computer(
     val location: Location,
-    var status: ComputerStatus = ComputerStatus.NOT_CONFIGURED,
+    var activate: Boolean = false,
+    var script: String? = null,
 ) {
-    fun openConfigurationGui(player: Player) {
-        fun statusItem(gui: ChestGui, pane: OutlinePane): GuiItem
-        = GuiItem(
-            ItemStack(status.material).also { item ->
-                item.itemMeta = item.itemMeta.also { it.displayName(Component.text(status.displayName, Style.style(TextColor.color(status.color.asRGB())))) }
-            }
-        ) {
-            status = if (status == ComputerStatus.ON) ComputerStatus.OFF else ComputerStatus.ON
+    val status get() = if (activate) Status.ON else Status.OFF
 
-            pane.removeItem(pane.items[0])
-            pane.addItem(statusItem(gui, pane))
-            gui.show(player)
-        }
-
-        ChestGui(3, "Computer Configuration").run {
-            setOnGlobalClick { it.isCancelled = true }
-            addPane(OutlinePane(3, 1, 3, 1).also { it.addItem(statusItem(this, it)) })
-            show(player)
-        }
+    enum class Status(
+        val color: Color,
+        val material: Material,
+        val displayName: String,
+    ) {
+        NOT_CONFIGURED(Color.GRAY, Material.GRAY_WOOL, "Not configured"),
+        PINS_ERROR(Color.BLACK, Material.BLACK_WOOL, "Error with pins"),
+        OFF(Color.WHITE, Material.WHITE_WOOL, "Off"),
+        ON(Color.LIME, Material.LIME_WOOL, "On"),
+        ERROR(Color.RED, Material.RED_WOOL, "Error!")
     }
-}
-
-enum class ComputerStatus(
-    val color: Color,
-    val material: Material,
-    val displayName: String,
-) {
-    NOT_CONFIGURED(Color.GRAY, Material.GRAY_WOOL, "Not configured"),
-    PINS_ERROR(Color.BLACK, Material.BLACK_WOOL, "Error with pins"),
-    OFF(Color.WHITE, Material.WHITE_WOOL, "Off"),
-    ON(Color.LIME, Material.LIME_WOOL, "On"),
-    ERROR(Color.RED, Material.RED_WOOL, "Error!")
 }
 
 object Computers {
@@ -82,7 +56,8 @@ object Computers {
         TextFile.readCsvFile(PERSISTENCE_FILE).forEach {
             computers += Computer(
                 deserializeLocationFromString(it[0]),
-                ComputerStatus.valueOf(it[1])
+                it[1].toBoolean(),
+                if (it[2] != "null") it[2] else null,
             )
         }
     }
@@ -90,7 +65,8 @@ object Computers {
     fun save() {
         TextFile.csv(computers.map { listOf(
             it.location.serializeToString(),
-            it.status.toString()
+            it.activate.toString(),
+            it.script.toString(),
         ) }).writeFile(PERSISTENCE_FILE)
     }
 }
