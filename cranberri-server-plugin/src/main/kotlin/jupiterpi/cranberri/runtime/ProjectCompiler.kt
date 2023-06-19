@@ -26,11 +26,10 @@ object ProjectCompiler {
             import jupiterpi.cranberri.runtime.api.Setup
             import jupiterpi.cranberri.runtime.api.Tick
             import jupiterpi.cranberri.runtime.api.IO
-            import jupiterpi.cranberri.runtime.api.IO.pinMode
+            import jupiterpi.cranberri.runtime.api.IO.disableDebug
+            import jupiterpi.cranberri.runtime.api.IO.log
             import jupiterpi.cranberri.runtime.api.IO.writePin
             import jupiterpi.cranberri.runtime.api.IO.readPin
-            import jupiterpi.cranberri.runtime.api.IO.log
-            import jupiterpi.cranberri.runtime.api.IO.PinMode.*
             import jupiterpi.cranberri.runtime.api.IO.PinValue.*
         """.trimIndent()
 

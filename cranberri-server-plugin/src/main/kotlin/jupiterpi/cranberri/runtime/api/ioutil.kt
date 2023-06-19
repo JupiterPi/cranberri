@@ -2,66 +2,58 @@ package jupiterpi.cranberri.runtime.api
 
 import jupiterpi.cranberri.Computer
 import jupiterpi.cranberri.Computers
-import jupiterpi.cranberri.tools.loggingSessions
+import jupiterpi.cranberri.InputPin
+import jupiterpi.cranberri.OutputPin
 
 @Suppress("unused")
 object IO {
-    private const val LOGGER_PREFIX = "[LOG]"
-    private const val PINS_PREFIX = "[IO] "
-
-    private fun out(prefix: String, str: String) {
-        val msg = "$prefix $str"
-
-        println(msg)
-
-        val computer = getComputer()
-        loggingSessions.filterValues { it == computer.runningScript!! }.keys.forEach { it.sendMessage(msg) }
-    }
-
     // logging
 
-    fun log(msg: String) {
-        out(LOGGER_PREFIX, msg)
+    fun disableDebug() {
+        getComputer().runningScript!!.disableDebug()
     }
-    fun log(i: Int) {
-        log(i.toString() + " [${getComputer()}]")
+
+    fun log(msg: String) {
+        getComputer().runningScript!!.logger.printLog(msg)
     }
 
     // pins io
-
-    enum class PinMode { INPUT, OUTPUT }
-
-    fun pinMode(pin: Int, mode: PinMode) {
-        val modeStr = when (mode) {
-            PinMode.INPUT -> "in"
-            PinMode.OUTPUT -> "out"
-        }
-        out(PINS_PREFIX, "mode $pin $modeStr")
-    }
 
     enum class PinValue {
         HIGH, LOW;
 
         fun toBoolean() = this == HIGH
+
+        companion object {
+            fun fromBoolean(value: Boolean) = if (value) HIGH else LOW
+        }
     }
 
     fun writePin(pin: Int, value: PinValue) {
+        val runningScript = getComputer().runningScript!!
+        runningScript.pins[pin-1].let {
+            if (it is OutputPin) it.writeValue(value) else throw Exception("Tried to write to input pin!")
+        }
+
         val valueStr = when (value) {
             PinValue.HIGH -> 1
             PinValue.LOW -> 0
         }
-        out(PINS_PREFIX, "out $pin $valueStr")
+        runningScript.logger.printDebug("out $pin $valueStr")
     }
 
     fun readPin(pin: Int): PinValue {
-        out(PINS_PREFIX, "in $pin")
-        return PinValue.HIGH  //TODO implement
+        val runningScript = getComputer().runningScript!!
+        getComputer().runningScript!!.logger.printDebug("in $pin")
+        runningScript.pins[pin-1].let {
+            if (it is InputPin) return it.readValue() else throw Exception("Tried to write to input pin!")
+        }
     }
 
     // ...
 
     private fun getComputer(): Computer {
         val className = Thread.currentThread().stackTrace.single { it.className.startsWith("cranberri_project_") }.className
-        return Computers.computers.single { it.runningScript != null && className.startsWith(it.runningScript!!.scriptClassName) }
+        return Computers.computers.single { it.runningScript != null && className.startsWith(it.runningScript!!.script.scriptClassName) }
     }
 }

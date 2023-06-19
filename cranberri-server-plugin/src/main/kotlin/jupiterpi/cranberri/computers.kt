@@ -1,17 +1,11 @@
 package jupiterpi.cranberri
 
-import jupiterpi.cranberri.runtime.Script
 import jupiterpi.cranberri.tools.isLoggerToolItem
-import jupiterpi.cranberri.tools.loggingSessions
 import jupiterpi.cranberri.util.DATA_ROOT
 import jupiterpi.cranberri.util.TextFile
 import jupiterpi.cranberri.util.deserializeLocationFromString
 import jupiterpi.cranberri.util.serializeToString
-import org.bukkit.Bukkit
-import org.bukkit.Color
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.Particle
+import org.bukkit.*
 import org.bukkit.Particle.DustOptions
 import org.bukkit.block.Block
 import org.bukkit.event.EventHandler
@@ -42,7 +36,7 @@ class Computer(
         ERROR(Color.RED, Material.RED_WOOL, "Error!")
     }
 
-    var runningScript: Script? = null
+    var runningScript: RunningScript? = null
 
     init {
         if (activate) activate()
@@ -53,21 +47,26 @@ class Computer(
 
             val projectName = script!!.split(":")[0]
             val scriptName = script!!.split(":")[1]
-
             Bukkit.getScheduler().runTaskAsynchronously(plugin) { _ ->
-                runningScript = Script.compile(projectName, scriptName)
-                runningScript?.invokeSetup()
-                Bukkit.getScheduler().runTaskTimer(plugin, { task ->
-                    if (runningScript == null) task.cancel()
-                    runningScript?.invokeTick()
-                }, 0, 20)
+                runningScript = RunningScript.compile(this, projectName, scriptName)
             }
+
+            var invocations = 0
+            Bukkit.getScheduler().runTaskTimer(plugin, { task ->
+                invocations++
+                if (invocations > 40) task.cancel()
+
+                if (runningScript != null) {
+                    task.cancel()
+                    runningScript!!.start()
+                }
+            }, 0, 5)
         }
     }
     fun deactivate() {
         status = Status.OFF
 
-        loggingSessions.filterValues { it == runningScript }.keys.forEach { loggingSessions.remove(it) }
+        runningScript?.deactivate()
         runningScript = null
     }
 }
@@ -78,6 +77,12 @@ object Computers {
     fun createComputer(block: Block): Computer {
         block.type = COMPUTER_MATERIAL
         return Computer(block.location).also { computers += it }
+    }
+
+    init {
+        Bukkit.getScheduler().runTaskTimer(plugin, { _ ->
+            computers.forEach { it.runningScript?.pins?.forEach { if (it is OutputPin) it.fulfillValue() } }
+        }, 0, 1)
     }
 
     // persistence

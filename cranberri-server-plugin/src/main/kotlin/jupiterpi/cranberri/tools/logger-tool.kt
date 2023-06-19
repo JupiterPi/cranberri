@@ -1,8 +1,6 @@
 package jupiterpi.cranberri.tools
 
-import jupiterpi.cranberri.cranberriLettering
-import jupiterpi.cranberri.getComputerBlock
-import jupiterpi.cranberri.runtime.Script
+import jupiterpi.cranberri.*
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.Style
@@ -16,8 +14,6 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
-
-val loggingSessions = mutableMapOf<Player, Script>()
 
 val loggerToolItem get() = ItemStack(Material.SPYGLASS).also { item ->
     item.itemMeta = item.itemMeta.also {
@@ -47,16 +43,23 @@ val loggerToolListener = object : Listener {
         val computer = getComputerBlock(event.clickedBlock)
         if (computer != null) {
             if (computer.runningScript != null) {
-                loggingSessions[event.player] = computer.runningScript!!
-                event.player.sendMessage("Showing logs for computer running ${computer.runningScript!!.projectName}:${computer.runningScript!!.scriptName}")
+                removePlayerLoggers(event.player)
+                computer.runningScript!!.loggers += PlayerLogger(event.player)
+                event.player.sendMessage("Showing logs for computer running ${computer.runningScript!!.script.projectName}:${computer.runningScript!!.script.scriptName}")
             } else {
                 event.player.sendMessage("Computer doesn't have a running script!")
             }
         } else {
-            loggingSessions.remove(event.player)
+            removePlayerLoggers(event.player)
             event.player.sendMessage("Closing logs")
         }
 
         event.isCancelled = true
+    }
+
+    private fun removePlayerLoggers(player: Player) {
+        Computers.computers.forEach { computer ->
+            computer.runningScript?.loggers?.removeAll { it is PlayerLogger && it.player == player }
+        }
     }
 }

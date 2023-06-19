@@ -41,10 +41,4 @@ class Script private constructor(
 
     fun invokeSetup() { setup?.invoke(scriptInstance) }
     fun invokeTick() { tick?.invoke(scriptInstance) }
-
-    val loggers = mutableListOf<Logger>()
 }
-
-class Logger(
-    val out: (String) -> Unit,
-)
