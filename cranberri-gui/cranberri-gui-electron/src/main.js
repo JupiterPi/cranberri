@@ -1,18 +1,22 @@
 const { app, BrowserWindow, ipcMain } = require("electron")
+const isDev = require('electron-is-dev')
 const path = require("path")
 
 const api = require("./api")
 
 const createWindow = () => {
     const win = new BrowserWindow({
+        title: "Cranberri GUI",
         width: 1200,
         height: 800,
         webPreferences: {
             preload: path.join(__dirname, "preload.js")
-        }
+        },
     })
 
-    win.loadFile('src/render/index.html')
+    if (isDev) win.loadURL("http://localhost:4200")
+    else win.loadFile("src/render/index.html")
+
     win.openDevTools()
 }
 
