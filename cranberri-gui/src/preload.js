@@ -1,8 +1,14 @@
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require("electron")
 
-contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron
-    // we can also expose variables, not just functions
+contextBridge.exposeInMainWorld("api", {
+    test: () => ipcRenderer.invoke("api-test"),
+    getWorlds: () => ipcRenderer.invoke("api-getWorlds"),
+    getActiveWorldId: () => ipcRenderer.invoke("api-getActiveWorld"),
+    renameWorld: (id, name) => ipcRenderer.invoke("api-renameWorld", id, name),
+    archiveWorld: (id) => ipcRenderer.invoke("api-archiveWorld", id),
+    getProjects: () => ipcRenderer.invoke("api-getProjects"),
+    openProjectsFolder: () => ipcRenderer.invoke("api-openProjectsFolder"),
+    openProjectFolder: (projectName) => ipcRenderer.invoke("api-openProjectFolder", projectName),
+    createProject: (name, language) => ipcRenderer.invoke("api-createProject", name, language),
+    startServer: (worldId) => ipcRenderer.invoke("api-startServer", worldId),
 })
