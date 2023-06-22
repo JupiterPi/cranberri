@@ -6,9 +6,11 @@ const api = require("./api")
 
 const createWindow = () => {
     const win = new BrowserWindow({
-        title: "Cranberri GUI",
+        title: "Cranberri",
+        frame: false,
         width: 740,
-        height: 360,
+        height: 370,
+        resizable: false,
         webPreferences: {
             preload: path.join(__dirname, "preload.js")
         },
@@ -17,16 +19,17 @@ const createWindow = () => {
     if (isDev) win.loadURL("http://localhost:4200")
     else win.loadFile("src/render/index.html")
 
-    win.setTitle("Cranberri GUI")
-    win.removeMenu()
-    win.openDevTools()
+    win.setTitle("Cranberri")
 }
 
 app.whenReady().then(() => {
-    ipcMain.handle("test", () => api.test())
     for (const [funName, fun] of Object.entries(api)) {
         ipcMain.handle(`api-${funName}`, () => fun())
     }
+
+    ipcMain.handle("close", () => {
+        app.quit()
+    })
 
     createWindow()
 

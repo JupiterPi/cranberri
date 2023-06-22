@@ -55,4 +55,8 @@ export class AppComponent {
     if (this.projectSelectedName == null) return;
     api.openProjectFolder(this.projectSelectedName);
   }
+
+  close() {
+    api.close()
+  }
 }

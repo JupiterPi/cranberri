@@ -11,4 +11,6 @@ contextBridge.exposeInMainWorld("api", {
     openProjectFolder: (projectName) => ipcRenderer.invoke("api-openProjectFolder", projectName),
     createProject: (name, language) => ipcRenderer.invoke("api-createProject", name, language),
     startServer: (worldId) => ipcRenderer.invoke("api-startServer", worldId),
+
+    close: () => ipcRenderer.invoke("close"),
 })

@@ -4,6 +4,28 @@
   margin: 0;
   padding: 10px;
   border-bottom: 1px solid $clr-border;
+
+  -webkit-app-region: drag;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #icon {
+    height: 25px;
+    background-color: white;
+    border-radius: 5px;
+  }
+
+  button {
+    -webkit-app-region: no-drag;
+  }
 }
 
 .section-container {
@@ -68,4 +90,9 @@
       }
     }
   }
+}
+
+#bottom-buttons {
+  display: flex;
+  justify-content: flex-end;
 }

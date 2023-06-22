@@ -23,5 +23,7 @@ declare global {
     openProjectFolder: (projectName: String) => Promise<void>,
     createProject: (name: string, language: string) => Promise<Project[]>,
     startServer: (worldId: string | null) => Promise<void>,
+
+    close: () => Promise<void>,
   }
 }

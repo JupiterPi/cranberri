@@ -48,6 +48,17 @@ button.button {
   &:disabled {
     color: rgba($clr-text, 0.5);
   }
+
+  &.primary-button {
+    color: $clr-background;
+    font-weight: 500;
+    border: none;
+
+    background-color: $clr-primary;
+    &:hover {
+      background-color: $clr-primary;
+    }
+  }
 }
 
 .label {
