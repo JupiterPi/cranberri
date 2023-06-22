@@ -7,8 +7,8 @@ const api = require("./api")
 const createWindow = () => {
     const win = new BrowserWindow({
         title: "Cranberri GUI",
-        width: 1200,
-        height: 800,
+        width: 740,
+        height: 360,
         webPreferences: {
             preload: path.join(__dirname, "preload.js")
         },
@@ -17,6 +17,8 @@ const createWindow = () => {
     if (isDev) win.loadURL("http://localhost:4200")
     else win.loadFile("src/render/index.html")
 
+    win.setTitle("Cranberri GUI")
+    win.removeMenu()
     win.openDevTools()
 }
 

@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron")
 contextBridge.exposeInMainWorld("api", {
     test: () => ipcRenderer.invoke("api-test"),
     getWorlds: () => ipcRenderer.invoke("api-getWorlds"),
-    getActiveWorldId: () => ipcRenderer.invoke("api-getActiveWorld"),
+    getActiveWorldId: () => ipcRenderer.invoke("api-getActiveWorldId"),
     renameWorld: (id, name) => ipcRenderer.invoke("api-renameWorld", id, name),
     archiveWorld: (id) => ipcRenderer.invoke("api-archiveWorld", id),
     getProjects: () => ipcRenderer.invoke("api-getProjects"),

@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+$clr-background: #151515;
+$clr-primary: #2873ff;
+$clr-text: #c7cbd9;
+$clr-border: #5d5d5d;
+$clr-background-highlight: rgba($clr-border, 0.1);
+
+body {
+  margin: 0;
+  padding: 0;
+
+  background-color: $clr-background;
+  color: $clr-text;
+}
+
+body, button {
+  font-family: 'Inter', sans-serif;
+}
+
+h1 {
+  font-weight: 300;
+}
+
+@mixin highlightOnHover {
+  transition: background-color 100ms;
+}
+@mixin highlightOnHoverHover {
+  background-color: $clr-background-highlight;
+  cursor: pointer;
+}
+
+button.button {
+  border: 1px solid $clr-border;
+  border-radius: 5px;
+  background: none;
+  color: $clr-text;
+  padding: 5px 8px;
+
+  &:not(:disabled) {
+    @include highlightOnHover;
+    &:hover {
+      @include highlightOnHoverHover;
+    }
+  }
+
+  transition: color 200ms;
+  &:disabled {
+    color: rgba($clr-text, 0.5);
+  }
+}
+
+.label {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 60%;
+  background-color: $clr-primary;
+  display: inline-block;
+  padding: 3px 5px;
+  color: $clr-background;
+  border-radius: 5px;
+}
