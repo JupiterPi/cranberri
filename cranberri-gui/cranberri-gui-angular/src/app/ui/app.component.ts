@@ -56,6 +56,10 @@ export class AppComponent {
     api.openProjectFolder(this.projectSelectedName);
   }
 
+  installOrUpdate() {
+    alert("install or update")
+  }
+
   close() {
     api.close()
   }

@@ -17,7 +17,7 @@ const createWindow = () => {
     })
 
     if (isDev) win.loadURL("http://localhost:4200")
-    else win.loadFile("src/render/index.html")
+    else win.loadFile("dist/cranberri-gui-angular/index.html")
 
     win.setTitle("Cranberri")
 }

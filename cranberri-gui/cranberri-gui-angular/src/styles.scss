@@ -5,6 +5,7 @@ $clr-primary: #2873ff;
 $clr-text: #c7cbd9;
 $clr-border: #5d5d5d;
 $clr-background-highlight: rgba($clr-border, 0.1);
+$clr-warn: #cc3e3e;
 
 body {
   margin: 0;
@@ -49,14 +50,23 @@ button.button {
     color: rgba($clr-text, 0.5);
   }
 
-  &.primary-button {
+  &.primary-button, &.warn-button {
     color: $clr-background;
     font-weight: 500;
     border: none;
 
-    background-color: $clr-primary;
-    &:hover {
+    &.primary-button {
       background-color: $clr-primary;
+      &:hover {
+        background-color: $clr-primary;
+      }
+    }
+
+    &.warn-button {
+      background-color: $clr-warn;
+      &:hover {
+        background-color: $clr-warn;
+      }
     }
   }
 }
