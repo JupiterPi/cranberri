@@ -21,14 +21,18 @@
       </div>
     </div>
     <div class="list-container">
-      <div class="list-entry-container" [class.selected]="worldSelectedId == null" (click)="worldSelectedId = null">
-        <div id="world-name-new-world">New World</div>
+      <div class="list-entry-container" [class.selected]="worldSelectedId == null" (click)="selectWorld(null)">
+        <div class="world-name" id="world-name-new-world">+ New World</div>
       </div>
-      <div class="list-entry-container" [class.selected]="worldSelectedId == world.id" *ngFor="let world of worlds" (click)="worldSelectedId = world.id">
+      <div class="list-entry-container" [class.selected]="worldSelectedId == world.id" *ngFor="let world of worlds" (click)="selectWorld(world)">
         <div class="world-id">{{world.id}}</div>
-        <div class="world-name">
+        <div class="world-name" *ngIf="worldRename != world.id">
           {{world.name}}
           <div class="label" *ngIf="recentWorldId == world.id">Recent</div>
+        </div>
+        <div class="world-name" *ngIf="worldRename == world.id">
+          <input class="input rename-input" [(ngModel)]="worldRenameInput">
+          <button class="button" (click)="confirmRenameWorld()">Confirm</button>
         </div>
       </div>
     </div>
@@ -44,7 +48,13 @@
       </div>
     </div>
     <div class="list-container">
-      <div class="list-entry-container" [class.selected]="projectSelectedName == project.name" *ngFor="let project of projects" (click)="projectSelectedName = project.name">
+      <div class="list-entry-container" *ngIf="showCreateProject">
+        <div class="world-name">
+          <input class="input rename-input" [(ngModel)]="createProjectNameInput">
+          <button class="button" (click)="confirmCreateProject()">Create</button>
+        </div>
+      </div>
+      <div class="list-entry-container" [class.selected]="projectSelectedName == project.name" *ngFor="let project of projects" (click)="selectProject(project)">
         <div class="world-name">
           {{project.name}}
           <img *ngIf="project.language == 'kotlin'" src="https://cdn.iconscout.com/icon/free/png-512/free-kotlin-2038873-1720086.png?f=avif&w=13">

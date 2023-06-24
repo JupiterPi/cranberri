@@ -10,12 +10,13 @@ $clr-warn: #cc3e3e;
 body {
   margin: 0;
   padding: 0;
+  //overflow: hidden;
 
   background-color: $clr-background;
   color: $clr-text;
 }
 
-body, button {
+body, button, input {
   font-family: 'Inter', sans-serif;
 }
 
@@ -71,6 +72,16 @@ button.button {
   }
 }
 
+input.rename-input {
+  background: none;
+  border: none;
+  padding: 0;
+  outline: none;
+  color: $clr-text;
+  font-size: 100%;
+  border-bottom: 1px solid $clr-border;
+}
+
 .label {
   text-transform: uppercase;
   font-weight: 600;
@@ -80,4 +91,8 @@ button.button {
   padding: 3px 5px;
   color: $clr-background;
   border-radius: 5px;
+}
+
+::-webkit-scrollbar {
+  width: 0;
 }

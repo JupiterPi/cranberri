@@ -24,7 +24,7 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
     for (const [funName, fun] of Object.entries(api)) {
-        ipcMain.handle(`api-${funName}`, () => fun())
+        ipcMain.handle(`api-${funName}`, (_, ...args) => fun(...args))
     }
 
     ipcMain.handle("close", () => {
