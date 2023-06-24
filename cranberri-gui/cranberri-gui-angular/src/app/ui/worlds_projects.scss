@@ -1,0 +1,61 @@
+@import "../../styles.scss";
+
+.section-container {
+  padding: 10px;
+  min-width: 350px;
+
+  .section-title-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    padding: 0 0 10px 10px;
+    justify-content: space-between;
+
+    .section-title-buttons-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+  }
+}
+
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .list-entry-container {
+    padding: 10px;
+    border: 1px solid $clr-border;
+    border-radius: 7px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    @include highlightOnHover;
+    &:hover {
+      @include highlightOnHoverHover;
+    }
+
+    transition: border 200ms;
+    &.selected {
+      border-color: $clr-primary;
+    }
+
+    .world-id {
+      font-size: 80%;
+      opacity: 65%;
+    }
+
+    .world-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &#world-name-new-world {
+        opacity: 65%;
+      }
+    }
+  }
+}

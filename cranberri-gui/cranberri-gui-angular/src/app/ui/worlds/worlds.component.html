@@ -1,0 +1,26 @@
+<div class="section-container">
+  <div class="section-title-container">
+    <div class="section-title">Worlds</div>
+    <div class="section-title-buttons-container">
+      <button class="button section-title-button" (click)="startServer()">Start Server</button>
+      <button class="button section-title-button" [disabled]="worldSelectedId == null" (click)="renameWorld()">Rename</button>
+      <button class="button section-title-button" [disabled]="worldSelectedId == null" (click)="archiveWorld()">Archive</button>
+    </div>
+  </div>
+  <div class="list-container">
+    <div class="list-entry-container" [class.selected]="worldSelectedId == null" (click)="selectWorld(null)">
+      <div class="world-name" id="world-name-new-world">+ New World</div>
+    </div>
+    <div class="list-entry-container" [class.selected]="worldSelectedId == world.id" *ngFor="let world of worlds" (click)="selectWorld(world)">
+      <div class="world-id">{{world.id}}</div>
+      <div class="world-name" *ngIf="worldRename != world.id">
+        {{world.name}}
+        <div class="label" *ngIf="recentWorldId == world.id">Recent</div>
+      </div>
+      <div class="world-name" *ngIf="worldRename == world.id">
+        <input class="input rename-input" [(ngModel)]="worldRenameInput">
+        <button class="button" (click)="confirmRenameWorld()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>

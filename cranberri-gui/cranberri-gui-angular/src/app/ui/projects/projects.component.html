@@ -1,0 +1,25 @@
+<div class="section-container">
+  <div class="section-title-container">
+    <div class="section-title">Projects</div>
+    <div class="section-title-buttons-container">
+      <button class="button section-title-button" (click)="createProject()">New</button>
+      <button class="button section-title-button" [disabled]="projectSelectedName == null" (click)="openProjectFolder()">Open</button>
+      <button class="button section-title-button" (click)="openProjectsFolder()">View in Explorer</button>
+    </div>
+  </div>
+  <div class="list-container">
+    <div class="list-entry-container" *ngIf="showCreateProject">
+      <div class="world-name">
+        <input class="input rename-input" [(ngModel)]="createProjectNameInput">
+        <button class="button" (click)="confirmCreateProject()">Create</button>
+      </div>
+    </div>
+    <div class="list-entry-container" [class.selected]="projectSelectedName == project.name" *ngFor="let project of projects" (click)="selectProject(project)">
+      <div class="world-name">
+        {{project.name}}
+        <img *ngIf="project.language == 'kotlin'" src="https://cdn.iconscout.com/icon/free/png-512/free-kotlin-2038873-1720086.png?f=avif&w=13">
+        <img *ngIf="project.language == 'java'" src="https://cdn.iconscout.com/icon/free/png-512/free-java-59-1174952.png?f=avif&w=20">
+      </div>
+    </div>
+  </div>
+</div>
