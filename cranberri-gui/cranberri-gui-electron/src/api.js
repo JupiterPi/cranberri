@@ -27,6 +27,16 @@ function writeWorlds(worlds) {
     fs.writeFileSync(WORLDS_REGISTRY, JSON.stringify(worlds, null, 2))
 }
 
+function setup() {
+    if (!fs.existsSync(WORLDS_REGISTRY)) {
+        fs.writeFileSync(WORLDS_REGISTRY, JSON.stringify({
+            activeWorldId: null,
+            worlds: []
+        }, null, 2))
+    }
+}
+setup()
+
 module.exports = {
     test: () => "Hello there.",
     getWorlds: () => readWorlds()["worlds"],

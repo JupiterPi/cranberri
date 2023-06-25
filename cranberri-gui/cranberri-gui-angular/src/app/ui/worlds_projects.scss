@@ -24,6 +24,9 @@
   flex-direction: column;
   gap: 10px;
 
+  height: calc(100vh - 106px);
+  overflow-y: scroll;
+
   .list-entry-container {
     padding: 10px;
     border: 1px solid $clr-border;

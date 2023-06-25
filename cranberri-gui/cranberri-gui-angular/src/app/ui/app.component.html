@@ -1,15 +1,19 @@
-<div id="top-bar">
-  <div>
-    <img src="assets/icon.png" id="icon">
-    <div id="title">Cranberri</div>
-  </div>
-  <div>
-    <button class="button warn-button" (click)="installOrUpdate()">Install</button>
-    <button class="button primary-button" (click)="close()">Done</button>
-  </div>
-</div>
+<div id="container">
 
-<div id="sections-container">
-  <app-worlds></app-worlds>
-  <app-projects></app-projects>
+  <div id="top-bar">
+    <div>
+      <img src="assets/icon.png" id="icon">
+      <div id="title">Cranberri</div>
+    </div>
+    <div>
+      <button class="button warn-button" (click)="installOrUpdate()">Install</button>
+      <button class="button primary-button" (click)="close()">Done</button>
+    </div>
+  </div>
+
+  <div id="sections-container">
+    <app-worlds></app-worlds>
+    <app-projects></app-projects>
+  </div>
+
 </div>
