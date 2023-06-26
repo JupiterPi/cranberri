@@ -2,15 +2,8 @@ const fs = require("fs")
 const path = require("path")
 const child_process = require("child_process")
 
-const SERVER_ROOT = "server"
-
-const WORLDS_REGISTRY = `${SERVER_ROOT}/worlds.json`
-const WORLDS_DIR = `${SERVER_ROOT}/worlds`
-const ACTIVE_WORLD_DIRS = ["world", "world_nether", "world_the_end"]
-const ACTIVE_WORLD_ROOT = SERVER_ROOT
-const ARCHIVED_WORLDS_DIR = `${SERVER_ROOT}/worlds_archive`
-
-const PROJECTS_ROOT = `${SERVER_ROOT}/cranberri_projects`
+const updater = require("./updater")
+const {SERVER_ROOT, WORLDS_REGISTRY, WORLDS_DIR, ACTIVE_WORLD_DIRS, ACTIVE_WORLD_ROOT, ARCHIVED_WORLDS_DIR, PROJECTS_ROOT} = require("./paths")
 
 const SAMPLE_SCRIPT = `
 // sample script
@@ -27,18 +20,11 @@ function writeWorlds(worlds) {
     fs.writeFileSync(WORLDS_REGISTRY, JSON.stringify(worlds, null, 2))
 }
 
-function setup() {
-    if (!fs.existsSync(WORLDS_REGISTRY)) {
-        fs.writeFileSync(WORLDS_REGISTRY, JSON.stringify({
-            activeWorldId: null,
-            worlds: []
-        }, null, 2))
-    }
-}
-setup()
-
 module.exports = {
     test: () => "Hello there.",
+    isInstalled: () => updater.isInstalled(),
+    updateAvailable: () => updater.updateAvailable(),
+    installOrUpdate: async () => await updater.installOrUpdate(),
     getWorlds: () => readWorlds()["worlds"],
     getActiveWorldId: () => readWorlds()["activeWorldId"],
     renameWorld: (id, name) => {
@@ -105,7 +91,7 @@ module.exports = {
         }
         writeWorlds(worlds)
 
-        child_process.exec(`start cmd.exe /c "cd ${SERVER_ROOT} && java -jar paper-1.19.4-538.jar nogui"`)
+        child_process.exec(`start cmd.exe /c "cd ${SERVER_ROOT} && java -jar paper-1.19.4-550.jar nogui"`)
 
         return world
     },

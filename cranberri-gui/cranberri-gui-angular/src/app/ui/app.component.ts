@@ -6,11 +6,26 @@ import {Component} from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  constructor() {
+    (async () => {
+      this.isInstalled = await api.isInstalled();
+      this.updateAvailable = await api.updateAvailable();
+    })();
+  }
+
+  isInstalled = false;
+  installOrUpdateLoading = false;
+  updateAvailable = false;
+
   installOrUpdate() {
-    alert("install or update")
+    this.installOrUpdateLoading = true;
+    api.installOrUpdate().then(() => {
+      this.installOrUpdateLoading = false;
+      api.isInstalled().then(isInstalled => this.isInstalled = isInstalled);
+    });
   }
 
   close() {
-    api.close()
+    api.close();
   }
 }

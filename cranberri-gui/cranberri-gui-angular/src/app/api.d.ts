@@ -14,6 +14,9 @@ export type Project = {
 declare global {
   const api: {
     test: () => Promise<string>,
+    isInstalled: () => Promise<boolean>,
+    updateAvailable: () => Promise<boolean>,
+    installOrUpdate: () => Promise<void>,
     getWorlds: () => Promise<World[]>,
     getActiveWorldId: () => Promise<string>,
     renameWorld: (id: string, name: string) => Promise<World[]>,
