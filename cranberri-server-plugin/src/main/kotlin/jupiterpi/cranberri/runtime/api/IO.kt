@@ -13,8 +13,8 @@ object IO {
         getComputer().runningScript!!.disableDebug()
     }
 
-    fun log(msg: String) {
-        getComputer().runningScript!!.logger.printLog(msg)
+    fun log(msg: Any) {
+        getComputer().runningScript!!.logger.printLog(msg.toString())
     }
 
     // pins io
@@ -53,7 +53,7 @@ object IO {
     // ...
 
     private fun getComputer(): Computer {
-        val className = Thread.currentThread().stackTrace.single { it.className.startsWith("cranberri_project_") }.className
+        val className = Thread.currentThread().stackTrace.first { it.className.startsWith("cranberri_project_") }.className
         return Computers.computers.single { it.runningScript != null && className.startsWith(it.runningScript!!.script.scriptClassName) }
     }
 }
