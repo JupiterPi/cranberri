@@ -47,7 +47,7 @@ fun Computer.loadPins(): List<Pin> {
     val location = location.clone()
     while (location.add(direction)/*has side effect*/.block.type == PIN_BASE_MATERIAL) {
         val pinLocation = location.clone().add(pinDirection)
-        if (pinLocation.block.type != PIN_MATERIAL) throw Exception("Invalid pin, should be repeater!")
+        if (pinLocation.block.type != PIN_MATERIAL) continue
         pins += when ((pinLocation.block.blockData as Repeater).facing.direction) {
             pinDirection -> InputPin(pinLocation)
             pinDirection.clone().rotateAroundY(Math.PI /*180°*/) -> OutputPin(pinLocation)

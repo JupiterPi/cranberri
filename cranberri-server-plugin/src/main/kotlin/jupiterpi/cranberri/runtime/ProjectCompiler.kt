@@ -30,7 +30,10 @@ object ProjectCompiler {
             import jupiterpi.cranberri.runtime.api.IO.log
             import jupiterpi.cranberri.runtime.api.IO.writePin
             import jupiterpi.cranberri.runtime.api.IO.readPin
+            import jupiterpi.cranberri.runtime.api.IO.PinValue
             import jupiterpi.cranberri.runtime.api.IO.PinValue.*
+            
+            import kotlin.math.*
         """.trimIndent()
 
         File("$PROJECTS_ROOT/$projectName/scripts").listFiles()?.forEach { file ->
