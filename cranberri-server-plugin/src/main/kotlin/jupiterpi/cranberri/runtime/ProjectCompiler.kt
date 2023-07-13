@@ -33,6 +33,10 @@ object ProjectCompiler {
             import jupiterpi.cranberri.runtime.api.IO.PinValue
             import jupiterpi.cranberri.runtime.api.IO.PinValue.*
             
+            import jupiterpi.cranberri.runtime.api.Binary
+            import jupiterpi.cranberri.runtime.api.Binary.binaryToInt
+            import jupiterpi.cranberri.runtime.api.Binary.toBinary
+            
             import kotlin.math.*
         """.trimIndent()
 
