@@ -33,10 +33,6 @@ object ProjectCompiler {
             import jupiterpi.cranberri.runtime.api.IO.PinValue
             import jupiterpi.cranberri.runtime.api.IO.PinValue.*
             
-            import jupiterpi.cranberri.runtime.api.Binary
-            import jupiterpi.cranberri.runtime.api.Binary.binaryToInt
-            import jupiterpi.cranberri.runtime.api.Binary.toBinary
-            
             import kotlin.math.*
         """.trimIndent()
 
@@ -47,13 +43,17 @@ object ProjectCompiler {
             if (source.contains("fun setup()")) source = source.replace("fun setup()", "@Setup fun setup()")
             if (source.contains("fun tick()")) source = source.replace("fun tick()", "@Tick fun tick()")
 
+            val extractedImportLines = extractImportLines(source)
+
             TextFile("""
                 $fileHeader
+                
+                ${extractedImportLines.importLines.joinToString("\n")}
                 
                 @Script("${file.nameWithoutExtension}")
                     class script_${file.nameWithoutExtension} {
                     
-                $source
+                ${extractedImportLines.source}
                 
                 }
             """.trimIndent()).writeFile("$PROJECTS_OUT_ROOT/$projectName-$instanceId/scripts/${file.nameWithoutExtension}.kt")
@@ -62,10 +62,15 @@ object ProjectCompiler {
         File("$projectName/lib").listFiles()?.forEach { file ->
             files += "lib/${file.nameWithoutExtension}.kt"
 
+            val source = TextFile.readFile(file).file
+            val extractedImportLines = extractImportLines(source)
+
             TextFile("""
                 $fileHeader
                 
-                ${TextFile.readFile(file)}
+                ${extractedImportLines.importLines.joinToString("\n")}
+                
+                ${extractedImportLines.source}
             """.trimIndent()).writeFile("$PROJECTS_OUT_ROOT/$projectName-$instanceId/lib/${file.nameWithoutExtension}.kt")
         }
 
@@ -76,5 +81,15 @@ object ProjectCompiler {
             it.inputStream.transferTo(System.out)
             it.errorStream.transferTo(System.err)
         }
+    }
+
+    private data class ExtractedImportLines(val source: String, val importLines: List<String>)
+    private fun extractImportLines(source: String): ExtractedImportLines {
+        lateinit var importLines: List<String>
+        val source = source.lines().toMutableList().also { lines ->
+            importLines = lines.filter { it.startsWith("import") }
+            lines.removeAll(importLines)
+        }.joinToString("\n")
+        return ExtractedImportLines(source, importLines)
     }
 }
