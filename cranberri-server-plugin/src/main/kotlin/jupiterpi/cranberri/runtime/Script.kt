@@ -2,6 +2,8 @@ package jupiterpi.cranberri.runtime
 
 import jupiterpi.cranberri.runtime.api.Setup
 import jupiterpi.cranberri.runtime.api.Tick
+import jupiterpi.cranberri.runtime.compilation.PROJECTS_OUT_ROOT
+import jupiterpi.cranberri.runtime.compilation.ProjectCompiler
 import org.xeustechnologies.jcl.JarClassLoader
 import org.xeustechnologies.jcl.JclObjectFactory
 import java.lang.reflect.Method

@@ -16,6 +16,7 @@ dependencies {
     implementation("com.github.stefvanschie.inventoryframework:IF:0.10.9")
     implementation("org.xeustechnologies:jcl-core:2.8")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0")
 }
 
 kotlin {
