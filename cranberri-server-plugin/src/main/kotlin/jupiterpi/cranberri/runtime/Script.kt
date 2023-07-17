@@ -25,7 +25,7 @@ class Script private constructor(
     private val setup: Method?
     private val tick: Method?
 
-    val scriptClassName get() = "cranberri_project_$projectName.instance_$instanceId.script_$scriptName"
+    val scriptClassName get() = "cranberri_project_$projectName.instance_$instanceId.$scriptName"
 
     init {
         val jcl = JarClassLoader().also { it.add("$PROJECTS_OUT_ROOT/$file") }

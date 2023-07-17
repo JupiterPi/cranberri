@@ -1,7 +1,7 @@
 package jupiterpi.cranberri.runtime.api
 
 @Target(AnnotationTarget.CLASS)
-annotation class Script(val name: String)
+annotation class Script
 
 @Target(AnnotationTarget.FUNCTION)
 annotation class Setup
