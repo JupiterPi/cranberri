@@ -9,11 +9,11 @@ import jupiterpi.cranberri.OutputPin
 object IO {
     // logging
 
-    fun disableDebug() {
+    @JvmStatic fun disableDebug() {
         getComputer().runningScript!!.disableDebug()
     }
 
-    fun log(msg: Any) {
+    @JvmStatic fun log(msg: Any) {
         getComputer().runningScript!!.logger.printLog(msg.toString())
     }
 
@@ -25,11 +25,11 @@ object IO {
         fun toBoolean() = this == HIGH
 
         companion object {
-            fun fromBoolean(value: Boolean) = if (value) HIGH else LOW
+            @JvmStatic fun fromBoolean(value: Boolean) = if (value) HIGH else LOW
         }
     }
 
-    fun writePin(pin: Int, value: PinValue) {
+    @JvmStatic fun writePin(pin: Int, value: PinValue) {
         val runningScript = getComputer().runningScript!!
         runningScript.pins[pin-1].let {
             if (it is OutputPin) it.writeValue(value) else throw Exception("Tried to write to input pin!")
@@ -42,7 +42,7 @@ object IO {
         runningScript.logger.printDebug("out $pin $valueStr")
     }
 
-    fun readPin(pin: Int): PinValue {
+    @JvmStatic fun readPin(pin: Int): PinValue {
         val runningScript = getComputer().runningScript!!
         getComputer().runningScript!!.logger.printDebug("in $pin")
         runningScript.pins[pin-1].let {
@@ -53,7 +53,7 @@ object IO {
     // ...
 
     private fun getComputer(): Computer {
-        val className = Thread.currentThread().stackTrace.first { it.className.startsWith("cranberri_project_") }.className
+        val className = Thread.currentThread().stackTrace.last { it.className.startsWith("cranberri_project_") }.className
         return Computers.computers.single { it.runningScript != null && className.startsWith(it.runningScript!!.script.scriptClassName) }
     }
 }

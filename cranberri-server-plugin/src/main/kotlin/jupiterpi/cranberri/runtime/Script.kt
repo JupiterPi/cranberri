@@ -36,8 +36,8 @@ class Script private constructor(
         if (scriptClass.isAnnotationPresent(jupiterpi.cranberri.runtime.api.Script::class.java)) {
             scriptInstance = scriptClass.getConstructor().newInstance()
 
-            setup = scriptClass.methods.singleOrNull { it.isAnnotationPresent(Setup::class.java) }
-            tick = scriptClass.methods.singleOrNull { it.isAnnotationPresent(Tick::class.java) }
+            setup = scriptClass.declaredMethods.singleOrNull { it.isAnnotationPresent(Setup::class.java) }.also { it?.isAccessible = true }
+            tick = scriptClass.declaredMethods.singleOrNull { it.isAnnotationPresent(Tick::class.java) }.also { it?.isAccessible = true }
         } else throw Exception("Invalid script: Not annotated @Script")
     }
 

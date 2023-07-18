@@ -1,38 +1,57 @@
 package jupiterpi.cranberri.runtime.compilation
 
-private val standardImports = """
-    import jupiterpi.cranberri.runtime.api.Script
-    import jupiterpi.cranberri.runtime.api.Setup
-    import jupiterpi.cranberri.runtime.api.Tick
-    import jupiterpi.cranberri.runtime.api.IO
-    import jupiterpi.cranberri.runtime.api.IO.disableDebug
-    import jupiterpi.cranberri.runtime.api.IO.log
-    import jupiterpi.cranberri.runtime.api.IO.writePin
-    import jupiterpi.cranberri.runtime.api.IO.readPin
-    import jupiterpi.cranberri.runtime.api.IO.PinValue
-    import jupiterpi.cranberri.runtime.api.IO.PinValue.*
-    
-    import kotlin.math.*
-""".trimIndent()
-
 object SimpleProjectCompiler : SpecificProjectCompiler {
-    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String): List<SourceFile> {
+    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage): List<SourceFile> {
+        /**
+         * optional semicolon
+         */
+        val s = if (language == ProjectManifest.ProjectLanguage.JAVA) ";" else ""
+
+        val setupDefinition = if (language == ProjectManifest.ProjectLanguage.KOTLIN) "fun setup()" else "void setup()"
+        val tickDefinition = if (language == ProjectManifest.ProjectLanguage.KOTLIN) "fun tick()" else "void tick()"
+        val optionalImportStatic = if (language == ProjectManifest.ProjectLanguage.JAVA) " static" else ""
+        val standardImports = """
+            import jupiterpi.cranberri.runtime.api.Script$s
+            import jupiterpi.cranberri.runtime.api.Setup$s
+            import jupiterpi.cranberri.runtime.api.Tick$s
+            import jupiterpi.cranberri.runtime.api.IO$s
+            import$optionalImportStatic jupiterpi.cranberri.runtime.api.IO.disableDebug$s
+            import$optionalImportStatic jupiterpi.cranberri.runtime.api.IO.log$s
+            import$optionalImportStatic jupiterpi.cranberri.runtime.api.IO.writePin$s
+            import$optionalImportStatic jupiterpi.cranberri.runtime.api.IO.readPin$s
+            import jupiterpi.cranberri.runtime.api.IO.PinValue$s
+            import$optionalImportStatic jupiterpi.cranberri.runtime.api.IO.PinValue.*$s
+        """.trimIndent()
+
+        val sourceFiles = sourceFiles.toMutableList()
+
+        var insertInScript = ""
+        var extraSourceFiles = mutableListOf<SourceFile>()
+        if (language == ProjectManifest.ProjectLanguage.JAVA) {
+            val libClasses = sourceFiles.filter { !it.isScript }.map { it.nameWithoutExtension }
+            val libInstancesFile = "package $packageName;\n\npublic class LibInstances {\n\n${libClasses.joinToString("\n") { "public static $it $it = new $it();" }}\n\n}"
+            extraSourceFiles += SourceFile("LibInstances", "java", libInstancesFile, false)
+            insertInScript = libClasses.joinToString("\n") { "$it $it = LibInstances.$it;" }
+        }
+
         sourceFiles.forEach { file ->
             if (file.isScript) {
 
-                if (file.source.contains("fun setup()")) file.source = file.source.replace("fun setup()", "@Setup fun setup()")
-                if (file.source.contains("fun tick()")) file.source = file.source.replace("fun tick()", "@Tick fun tick()")
+                file.source = file.source.replace(setupDefinition, "@Setup $setupDefinition")
+                file.source = file.source.replace(tickDefinition, "@Tick $tickDefinition")
 
                 val extractedImportLines = extractImportLines(file.source)
                 file.source = """
-                    package $packageName
+                    package $packageName$s
                     
                     $standardImports
                     
                     ${extractedImportLines.importLines.joinToString("\n")}
                     
                     @Script
-                    class ${file.nameWithoutExtension} {
+                    public class ${file.nameWithoutExtension} {
+                    
+                    $insertInScript
                         
                     ${extractedImportLines.source}
                     
@@ -41,21 +60,27 @@ object SimpleProjectCompiler : SpecificProjectCompiler {
 
             } else {
 
-                val extractedImportLines = extractImportLines(file.source)
+                var source = file.source
+                if (language == ProjectManifest.ProjectLanguage.JAVA) {
+                    source = """
+                        public class ${file.nameWithoutExtension} {
+                        $source
+                        }
+                    """.trimIndent()
+                }
+
                 file.source = """
-                    package $packageName.lib
+                    package $packageName$s
                     
                     $standardImports
                     
-                    ${extractedImportLines.importLines.joinToString("\n")}
-                    
-                    ${extractedImportLines.source}
+                    $source
                 """.trimIndent()
 
             }
         }
 
-        return sourceFiles
+        return sourceFiles.apply { addAll(extraSourceFiles) }
     }
 
     private data class ExtractedImportLines(val source: String, val importLines: List<String>)

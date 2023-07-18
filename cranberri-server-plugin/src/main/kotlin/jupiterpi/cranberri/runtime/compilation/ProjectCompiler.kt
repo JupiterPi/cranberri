@@ -26,26 +26,28 @@ object ProjectCompiler {
 
         var files = listOfNotNull(
             File("$PROJECTS_ROOT/$projectName/scripts").listFiles()
-                ?.map { SourceFile(it.nameWithoutExtension, TextFile.readFile(it).file, true) },
+                ?.map { SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, true) },
             File("$PROJECTS_ROOT/$projectName/lib").listFiles()
-                ?.map { SourceFile(it.nameWithoutExtension, TextFile.readFile(it).file, false) }
+                ?.map { SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, false) }
         ).flatten()
 
         val manifest = ProjectManifest.read(File("$PROJECTS_ROOT/$projectName/project.yaml"))
-        if (manifest.language != ProjectManifest.ProjectLanguage.KOTLIN) throw Exception("Project language ${manifest.language} not yet supported!")
 
         val compiler = when (manifest.projectType) {
             ProjectManifest.ProjectType.SIMPLE -> SimpleProjectCompiler
             ProjectManifest.ProjectType.FULL -> FullProjectCompiler
         }
-        files = compiler.compileProject(files, "cranberri_project_$projectName.instance_$instanceId")
+        files = compiler.compileProject(files, "cranberri_project_$projectName.instance_$instanceId", manifest.language)
 
         files.forEach {
             TextFile(it.source).writeFile("$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}")
         }
 
         val filesStr = files.joinToString(" ") { "$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}" }
-        val cmd = "kotlinc -include-runtime -d $PROJECTS_OUT_ROOT/$projectName-$instanceId.jar -cp \"$API_JAR\" $filesStr"
+        val cmd = when (manifest.language) {
+            ProjectManifest.ProjectLanguage.KOTLIN -> "kotlinc -include-runtime -d $PROJECTS_OUT_ROOT/$projectName-$instanceId.jar -cp \"$API_JAR\" $filesStr"
+            ProjectManifest.ProjectLanguage.JAVA -> "javac -d $PROJECTS_OUT_ROOT/$projectName-${instanceId}.jar -cp \"$API_JAR\" $filesStr"
+        }
         Runtime.getRuntime().exec("cmd.exe /c $cmd").let {
             it.inputStream.transferTo(System.out)
             it.errorStream.transferTo(System.err)
@@ -91,12 +93,15 @@ class ProjectManifest(
 
 class SourceFile(
     val nameWithoutExtension: String,
+    val extension: String,
     var source: String,
     val isScript: Boolean,
 ) {
-    val path get() = "${if (isScript) "scripts" else "lib"}/${nameWithoutExtension}.kt"
+    val path: String get() {
+        return "${if (isScript) "scripts" else "lib"}/$nameWithoutExtension.$extension"
+    }
 }
 
 interface SpecificProjectCompiler {
-    fun compileProject(sourceFiles: List<SourceFile>, packageName: String): List<SourceFile>
+    fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage): List<SourceFile>
 }

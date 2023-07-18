@@ -1,24 +1,36 @@
 package jupiterpi.cranberri.runtime.compilation
 
 object FullProjectCompiler : SpecificProjectCompiler {
-    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String): List<SourceFile> {
-        val modifiedPackageNames = mutableSetOf<String>()
+    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage): List<SourceFile> {
+        /**
+         * optional semicolon
+         */
+        val s = if (language == ProjectManifest.ProjectLanguage.JAVA) ";" else ""
+
+        var modifiedPackageNames = mutableSetOf<String>()
         sourceFiles.forEach { file ->
             if (file.source.contains("package ")) {
                 modifiedPackageNames += Regex("package (.+)\n").find(file.source)!!.groupValues[1]
                 file.source = file.source.replace("package ", "package $packageName.")
             } else {
-                val specificPackageName = if (file.isScript) packageName else "$packageName.lib"
-                file.source = "package $specificPackageName\n\n${file.source}"
+                file.source = "package $packageName$s\n\n${file.source}"
             }
         }
+
+        if (language == ProjectManifest.ProjectLanguage.JAVA) modifiedPackageNames = modifiedPackageNames.map { it.substring(0, it.length - 1) }.toMutableSet()
+
         sourceFiles.forEach { file ->
             file.source = file.source
                 .lines()
                 .map { line ->
                     var line = line
                     if (line.startsWith("import ")) {
-                        modifiedPackageNames.forEach { line = line.replace(it, "$packageName.$it") }
+                        for (modifiedPackageName in modifiedPackageNames.sortedByDescending { it.length }) {
+                            if (line.contains(modifiedPackageName)) {
+                                line = line.replace(modifiedPackageName, "$packageName.$modifiedPackageName")
+                                break
+                            }
+                        }
                     }
                     return@map line
                 }
