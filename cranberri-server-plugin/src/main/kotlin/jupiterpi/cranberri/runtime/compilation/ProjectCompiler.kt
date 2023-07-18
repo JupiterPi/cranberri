@@ -16,6 +16,10 @@ const val PROJECTS_OUT_ROOT = "cranberri_projects-out"
 private const val API_JAR = "plugins/cranberri-server-plugin-1.0-SNAPSHOT-all.jar"
 
 object ProjectCompiler {
+    fun clearOutputCache() {
+        File(PROJECTS_OUT_ROOT).listFiles()?.forEach { it.deleteRecursively() }
+    }
+
     fun compileProject(projectName: String, instanceId: String) {
         if (projectName.contains("-")) throw Exception("Invalid project name: Mustn't include '-'")
 

@@ -1,5 +1,6 @@
 package jupiterpi.cranberri
 
+import jupiterpi.cranberri.runtime.compilation.ProjectCompiler
 import jupiterpi.cranberri.tools.computerToolListener
 import jupiterpi.cranberri.tools.loggerToolListener
 import jupiterpi.cranberri.tools.toolsCommand
@@ -28,6 +29,7 @@ class CranberriPlugin : JavaPlugin(), Listener {
         plugin = this
 
         TextFile.createPath(DATA_ROOT)
+        ProjectCompiler.clearOutputCache()
 
         Bukkit.getPluginManager().registerEvents(this, this)
         server.consoleSender.sendMessage(Component.join(JoinConfiguration.noSeparators(),
