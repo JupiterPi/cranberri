@@ -44,7 +44,7 @@ val loggerToolListener = object : Listener {
         if (computer != null) {
             if (computer.runningScript != null) {
                 PlayerLogger.removePlayerLoggers(event.player)
-                computer.runningScript!!.loggers += PlayerLogger(event.player)
+                computer.runningScript!!.loggers += PlayerLogger(event.player, computer.runningScript!!.script)
                 event.player.sendMessage("Showing logs for computer running ${computer.runningScript!!.script.projectName}:${computer.runningScript!!.script.scriptName}")
             } else {
                 event.player.sendMessage("Computer doesn't have a running script!")

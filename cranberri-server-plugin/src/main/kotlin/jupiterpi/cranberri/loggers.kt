@@ -39,9 +39,13 @@ abstract class Logger {
     protected abstract fun sendMessage(message: Component)
 }
 
-class PlayerLogger(val player: Player) : Logger() {
+class PlayerLogger(val player: Player, private val script: Script) : Logger() {
     override fun sendMessage(message: Component) {
-        player.sendMessage(message)
+        player.sendMessage(Component.join(JoinConfiguration.noSeparators(),
+            //Component.text("${script.projectName}/${script.scriptName}/${script.instanceId.substring(0, 4)} ", TextColor.color(Color.GRAY.asRGB())),
+            Component.text("${script.instanceId.substring(0, 6)}: ", TextColor.color(Color.GRAY.asRGB())),
+            message
+        ))
     }
 
     companion object {

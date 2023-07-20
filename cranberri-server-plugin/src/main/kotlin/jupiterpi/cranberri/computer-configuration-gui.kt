@@ -50,7 +50,7 @@ fun Computer.openConfigurationGui(player: Player) {
             if (!status.wasActivated) {
                 activate(onComplete = {
                     PlayerLogger.removePlayerLoggers(player)
-                    runningScript!!.loggers += PlayerLogger(player)
+                    runningScript!!.loggers += PlayerLogger(player, runningScript!!.script)
                 })
             } else {
                 deactivate()

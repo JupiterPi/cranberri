@@ -12,7 +12,7 @@ import java.util.UUID
 class Script private constructor(
     file: String,
     val projectName: String,
-    private val instanceId: String,
+    val instanceId: String,
     val scriptName: String,
 ) {
     companion object {
