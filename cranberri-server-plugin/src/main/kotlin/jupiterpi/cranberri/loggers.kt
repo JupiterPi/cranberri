@@ -9,6 +9,10 @@ import org.bukkit.Color
 import org.bukkit.entity.Player
 
 abstract class Logger {
+    open fun printSystem(msg: String) {
+        print(Component.text("[SYS]", TextColor.color(Color.GRAY.asRGB())), msg)
+    }
+
     open fun printDebug(msg: String) {
         print(Component.text("[IO] ", TextColor.color(Color.BLUE.asRGB())), msg)
     }

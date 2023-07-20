@@ -41,7 +41,7 @@ class Computer(
     init {
         if (activate) activate()
     }
-    fun activate() {
+    fun activate(onComplete: (() -> Unit)? = null) {
         if (script != null) {
             status = Status.ON
 
@@ -49,6 +49,7 @@ class Computer(
             val scriptName = script!!.split(":")[1]
             Bukkit.getScheduler().runTaskAsynchronously(plugin) { _ ->
                 runningScript = RunningScript.compile(this, projectName, scriptName)
+                onComplete?.invoke()
             }
 
             var invocations = 0

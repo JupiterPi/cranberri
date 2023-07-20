@@ -16,9 +16,10 @@ class RunningScript(computer: Computer, val script: Script) {
     var doDebug = true
     fun disableDebug() { doDebug = false }
     val logger = object : Logger() {
-        override fun printDebug(msg: String) { if (doDebug) loggers.forEach { it.printDebug(msg) } }
-        override fun printLog  (msg: String) {              loggers.forEach { it.printLog  (msg) } }
-        override fun printError(msg: String) {              loggers.forEach { it.printError(msg) } }
+        override fun printSystem(msg: String) {              loggers.forEach { it.printSystem(msg) } }
+        override fun printDebug (msg: String) { if (doDebug) loggers.forEach { it.printDebug (msg) } }
+        override fun printLog   (msg: String) {              loggers.forEach { it.printLog   (msg) } }
+        override fun printError (msg: String) {              loggers.forEach { it.printError (msg) } }
         override fun sendMessage(message: Component) {}
     }
     init {
@@ -26,7 +27,7 @@ class RunningScript(computer: Computer, val script: Script) {
     }
 
     fun start() {
-        logger.printDebug("starting")
+        logger.printSystem("Starting")
         script.invokeSetup()
         Bukkit.getScheduler().runTaskTimer(plugin, { task ->
             if (shutdown) task.cancel()
@@ -37,6 +38,6 @@ class RunningScript(computer: Computer, val script: Script) {
     private var shutdown = false
     fun deactivate() {
         shutdown = true
-        logger.printDebug("shutting down")
+        logger.printSystem("Shutting down")
     }
 }
