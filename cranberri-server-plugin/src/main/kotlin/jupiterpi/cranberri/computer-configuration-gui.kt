@@ -21,10 +21,10 @@ fun Computer.openConfigurationGui(player: Player) {
         }
     ) {
         if (status == Computer.Status.OFF) {
-            activate()
-
-            PlayerLogger.removePlayerLoggers(player)
-            runningScript!!.loggers += PlayerLogger(player)
+            activate(onComplete = {
+                PlayerLogger.removePlayerLoggers(player)
+                runningScript!!.loggers += PlayerLogger(player)
+            })
         } else if (status == Computer.Status.ON) {
             deactivate()
         }
