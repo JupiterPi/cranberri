@@ -23,17 +23,24 @@ class Computer(
     var script: String? = null,
 ) {
     var status = Status.OFF
+        set(status) {
+            field = status
+            ComputerConfigurationGuis.refreshOpenedGuis(this)
+        }
+    var isCompiling = false
 
     enum class Status(
         val color: Color,
         val material: Material,
         val displayName: String,
+        val wasActivated: Boolean,
     ) {
-        NOT_CONFIGURED(Color.GRAY, Material.GRAY_WOOL, "Not configured"),
-        PINS_ERROR(Color.BLACK, Material.BLACK_WOOL, "Error with pins"),
-        OFF(Color.WHITE, Material.WHITE_WOOL, "Off"),
-        ON(Color.LIME, Material.LIME_WOOL, "On"),
-        ERROR(Color.RED, Material.RED_WOOL, "Error!")
+        NOT_CONFIGURED(Color.GRAY, Material.GRAY_WOOL, "Not configured", false),
+        PINS_ERROR(Color.BLACK, Material.BLACK_WOOL, "Error with pins", false),
+        OFF(Color.WHITE, Material.WHITE_WOOL, "Off", false),
+        ON(Color.LIME, Material.LIME_WOOL, "On", true),
+        COMPILATION_ERROR(Color.RED, Material.RED_WOOL, "Compilation Error!", true),
+        ERROR(Color.RED, Material.RED_WOOL, "Runtime Error!", true)
     }
 
     var runningScript: RunningScript? = null
@@ -48,8 +55,16 @@ class Computer(
             val projectName = script!!.split(":")[0]
             val scriptName = script!!.split(":")[1]
             Bukkit.getScheduler().runTaskAsynchronously(plugin) { _ ->
-                runningScript = RunningScript.compile(this, projectName, scriptName)
-                onComplete?.invoke()
+                try {
+                    isCompiling = true
+                    runningScript = RunningScript.compile(this, projectName, scriptName)
+                    onComplete?.invoke()
+                } catch (e: Exception) {
+                    status = Status.COMPILATION_ERROR
+                    e.printStackTrace()
+                } finally {
+                    isCompiling = false
+                }
             }
 
             var invocations = 0

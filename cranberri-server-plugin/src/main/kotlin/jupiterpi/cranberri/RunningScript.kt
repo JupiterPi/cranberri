@@ -4,7 +4,7 @@ import jupiterpi.cranberri.runtime.Script
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 
-class RunningScript(computer: Computer, val script: Script) {
+class RunningScript(private val computer: Computer, val script: Script) {
     companion object {
         fun compile(computer: Computer, projectName: String, scriptName: String)
         = RunningScript(computer, Script.compile(projectName, scriptName))
@@ -28,10 +28,22 @@ class RunningScript(computer: Computer, val script: Script) {
 
     fun start() {
         logger.printSystem("Starting")
-        script.invokeSetup()
+
+        fun handleError(e: Exception) {
+            computer.status = Computer.Status.ERROR
+            e.cause?.printStackTrace() ?: e.printStackTrace()
+            computer.runningScript?.logger?.printError(e.cause.toString())
+        }
+
+        try { script.invokeSetup() }
+        catch (e: Exception) { handleError(e) }
+
         Bukkit.getScheduler().runTaskTimer(plugin, { task ->
             if (shutdown) task.cancel()
-            else script.invokeTick()
+            else {
+                try { script.invokeTick() }
+                catch (e: Exception) { handleError(e) }
+            }
         }, 0, 2)
     }
 
