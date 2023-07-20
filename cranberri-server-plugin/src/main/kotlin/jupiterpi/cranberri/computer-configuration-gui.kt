@@ -20,8 +20,14 @@ fun Computer.openConfigurationGui(player: Player) {
             item.itemMeta = item.itemMeta.also { it.displayName(Component.text(status.displayName, Style.style(TextColor.color(status.color.asRGB())))) }
         }
     ) {
-        if (status == Computer.Status.OFF) activate()
-        else if (status == Computer.Status.ON) deactivate()
+        if (status == Computer.Status.OFF) {
+            activate()
+
+            PlayerLogger.removePlayerLoggers(player)
+            runningScript!!.loggers += PlayerLogger(player)
+        } else if (status == Computer.Status.ON) {
+            deactivate()
+        }
         openConfigurationGui(player)
     }
 

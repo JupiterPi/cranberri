@@ -43,23 +43,17 @@ val loggerToolListener = object : Listener {
         val computer = getComputerBlock(event.clickedBlock)
         if (computer != null) {
             if (computer.runningScript != null) {
-                removePlayerLoggers(event.player)
+                PlayerLogger.removePlayerLoggers(event.player)
                 computer.runningScript!!.loggers += PlayerLogger(event.player)
                 event.player.sendMessage("Showing logs for computer running ${computer.runningScript!!.script.projectName}:${computer.runningScript!!.script.scriptName}")
             } else {
                 event.player.sendMessage("Computer doesn't have a running script!")
             }
         } else {
-            removePlayerLoggers(event.player)
+            PlayerLogger.removePlayerLoggers(event.player)
             event.player.sendMessage("Closing logs")
         }
 
         event.isCancelled = true
-    }
-
-    private fun removePlayerLoggers(player: Player) {
-        Computers.computers.forEach { computer ->
-            computer.runningScript?.loggers?.removeAll { it is PlayerLogger && it.player == player }
-        }
     }
 }

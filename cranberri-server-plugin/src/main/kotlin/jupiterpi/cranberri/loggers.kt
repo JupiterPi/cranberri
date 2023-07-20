@@ -39,6 +39,14 @@ class PlayerLogger(val player: Player) : Logger() {
     override fun sendMessage(message: Component) {
         player.sendMessage(message)
     }
+
+    companion object {
+        fun removePlayerLoggers(player: Player) {
+            Computers.computers.forEach { computer ->
+                computer.runningScript?.loggers?.removeAll { it is PlayerLogger && it.player == player }
+            }
+        }
+    }
 }
 
 class ConsoleLogger(private val script: Script) : Logger() {
