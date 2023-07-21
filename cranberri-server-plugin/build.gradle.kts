@@ -12,8 +12,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
-
     compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
     implementation("com.github.stefvanschie.inventoryframework:IF:0.10.9")
     implementation("org.xeustechnologies:jcl-core:2.8")

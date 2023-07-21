@@ -9,9 +9,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import jupiterpi.cranberri.CranberriPlugin
 import jupiterpi.cranberri.util.TextFile
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.File
 
 const val PROJECTS_ROOT = "cranberri_projects"
@@ -24,44 +21,22 @@ object ProjectCompiler {
         File(PROJECTS_OUT_ROOT).listFiles()?.forEach { it.deleteRecursively() }
     }
 
-    fun compileProject(projectName: String, instanceId: String) = runBlocking {
-        println("-------------- started compilation")
-        val timerStart = System.currentTimeMillis()
-
+    fun compileProject(projectName: String, instanceId: String) {
         if (projectName.contains("-")) throw Exception("Invalid project name: Mustn't include '-'")
 
-        val createOutputDirsJob = launch {
-            coroutineScope {
-                launch { TextFile.createPath(PROJECTS_OUT_ROOT) }
-                launch { TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId") }
-                launch { TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId/scripts") }
-                launch { TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId/lib") }
-            }
-        }
-        createOutputDirsJob.join()
+        TextFile.createPath(PROJECTS_OUT_ROOT)
+        TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId")
+        TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId/scripts")
+        TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId/lib")
 
-        var files: List<SourceFile> = mutableListOf<SourceFile>()
-        lateinit var manifest: ProjectManifest
-        coroutineScope {
-            launch {
-                File("$PROJECTS_ROOT/$projectName/scripts").listFiles()?.forEach {
-                    launch {
-                        (files as MutableList) += SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, true)
-                    }
-                }
-            }
-            launch {
-                File("$PROJECTS_ROOT/$projectName/lib").listFiles()?.forEach {
-                    launch {
-                        (files as MutableList) += SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, false)
-                    }
-                }
-            }
+        var files = listOfNotNull(
+            File("$PROJECTS_ROOT/$projectName/scripts").listFiles()
+                ?.map { SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, true) },
+            File("$PROJECTS_ROOT/$projectName/lib").listFiles()
+                ?.map { SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, false) }
+        ).flatten()
 
-            launch {
-                manifest = ProjectManifest.read(File("$PROJECTS_ROOT/$projectName/project.yaml"))
-            }
-        }
+        val manifest = ProjectManifest.read(File("$PROJECTS_ROOT/$projectName/project.yaml"))
 
         val compiler = when (manifest.projectType) {
             ProjectManifest.ProjectType.SIMPLE -> SimpleProjectCompiler
@@ -69,16 +44,9 @@ object ProjectCompiler {
         }
         files = compiler.compileProject(files, "cranberri_project_$projectName.instance_$instanceId", manifest.language)
 
-        createOutputDirsJob.join()
-        coroutineScope {
-            files.forEach {
-                launch {
-                    TextFile(it.source).writeFile("$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}")
-                }
-            }
+        files.forEach {
+            TextFile(it.source).writeFile("$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}")
         }
-
-        println("-------------- starting kotlinc... (time: ${System.currentTimeMillis() - timerStart} ms)")
 
         val filesStr = files.joinToString(" ") { "$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}" }
         val cmd = when (manifest.language) {
@@ -89,8 +57,6 @@ object ProjectCompiler {
             it.inputStream.transferTo(System.out)
             it.errorStream.transferTo(System.err)
         }
-
-        println("-------------- finished compilation! (time: ${System.currentTimeMillis() - timerStart} ms)")
     }
 }
 
