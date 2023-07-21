@@ -7,13 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import jupiterpi.cranberri.CranberriPlugin
 import jupiterpi.cranberri.util.TextFile
 import java.io.File
 
 const val PROJECTS_ROOT = "cranberri_projects"
 const val PROJECTS_OUT_ROOT = "cranberri_projects-out"
 
-private const val API_JAR = "plugins/cranberri-server-plugin-1.0-SNAPSHOT-all.jar"
+private val API_JAR = CranberriPlugin::class.java.protectionDomain.codeSource.location.toURI().path
 
 object ProjectCompiler {
     fun clearOutputCache() {
