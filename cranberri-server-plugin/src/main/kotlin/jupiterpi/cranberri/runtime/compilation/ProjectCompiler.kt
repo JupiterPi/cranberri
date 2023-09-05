@@ -9,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import jupiterpi.cranberri.CranberriPlugin
 import jupiterpi.cranberri.util.TextFile
+import jupiterpi.cranberri.util.set
 import java.io.File
 
 const val PROJECTS_ROOT = "cranberri_projects"
@@ -29,12 +30,15 @@ object ProjectCompiler {
         TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId/scripts")
         TextFile.createPath("$PROJECTS_OUT_ROOT/$projectName-$instanceId/lib")
 
-        var files = listOfNotNull(
-            File("$PROJECTS_ROOT/$projectName/scripts").listFiles()
-                ?.map { SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, true) },
-            File("$PROJECTS_ROOT/$projectName/lib").listFiles()
-                ?.map { SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, false) }
-        ).flatten()
+        val files = mutableListOf<SourceFile>()
+        fun lookForSourceFiles(dir: File, isScript: Boolean) {
+            dir.listFiles()?.forEach {
+                if (it.isDirectory) lookForSourceFiles(it, isScript)
+                else files += SourceFile(it.nameWithoutExtension, it.extension, TextFile.readFile(it).file, isScript)
+            }
+        }
+        lookForSourceFiles(File("$PROJECTS_ROOT/$projectName/scripts"), true)
+        lookForSourceFiles(File("$PROJECTS_ROOT/$projectName/lib"), false)
 
         val manifest = ProjectManifest.read(File("$PROJECTS_ROOT/$projectName/project.yaml"))
 
@@ -42,7 +46,7 @@ object ProjectCompiler {
             ProjectManifest.ProjectType.SIMPLE -> SimpleProjectCompiler
             ProjectManifest.ProjectType.FULL -> FullProjectCompiler
         }
-        files = compiler.compileProject(files, "cranberri_project_$projectName.instance_$instanceId", manifest.language)
+        files.set(compiler.compileProject(files, "cranberri_project_$projectName.instance_$instanceId", manifest.language))
 
         files.forEach {
             TextFile(it.source).writeFile("$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}")
