@@ -141,6 +141,7 @@ val computersListener = object : Listener {
     @Suppress("unused")
     fun rightClickToOpenConfigurationGui(event: PlayerInteractEvent) {
         if (event.action != Action.RIGHT_CLICK_BLOCK) return
+        if (event.player.isSneaking) return
         if (isLoggerToolItem(event.item)) return
         getComputerBlock(event.clickedBlock)?.openConfigurationGui(event.player) ?: return
         event.isCancelled = true
