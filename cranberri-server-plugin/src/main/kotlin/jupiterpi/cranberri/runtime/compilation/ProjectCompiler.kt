@@ -14,7 +14,7 @@ import java.io.File
 const val PROJECTS_ROOT = "cranberri_projects"
 const val PROJECTS_OUT_ROOT = "cranberri_projects-out"
 
-private val API_JAR = CranberriPlugin::class.java.protectionDomain.codeSource.location.toURI().path
+private val API_JAR = CranberriPlugin::class.java.protectionDomain.codeSource.location.path.let { if (it.matches(Regex("/.:/.*"))) it.substring(1) else it }
 
 object ProjectCompiler {
     fun clearOutputCache() {
@@ -51,7 +51,7 @@ object ProjectCompiler {
         val filesStr = files.joinToString(" ") { "$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}" }
         val cmd = when (manifest.language) {
             ProjectManifest.ProjectLanguage.KOTLIN -> "kotlinc -include-runtime -d $PROJECTS_OUT_ROOT/$projectName-$instanceId.jar -cp \"$API_JAR\" $filesStr"
-            ProjectManifest.ProjectLanguage.JAVA -> "javac -d $PROJECTS_OUT_ROOT/$projectName-${instanceId}.jar -cp \"$API_JAR\" $filesStr"
+            ProjectManifest.ProjectLanguage.JAVA -> "javac -d $PROJECTS_OUT_ROOT/$projectName-$instanceId.jar -cp \"$API_JAR\" $filesStr"
         }
         Runtime.getRuntime().exec("cmd.exe /c $cmd").let {
             it.inputStream.transferTo(System.out)

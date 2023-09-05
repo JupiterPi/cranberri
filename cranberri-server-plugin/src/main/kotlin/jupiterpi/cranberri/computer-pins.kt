@@ -39,7 +39,7 @@ fun Computer.loadPins(): List<Pin> {
         Vector(1, 0, 0),
         Vector(0, 0, -1),
         Vector(-1, 0, 0),
-        Vector(1, 0, 1),
+        Vector(0, 0, 1),
     ).singleOrNull { location.clone().add(it).block.type == PIN_BASE_MATERIAL } ?: throw Exception("No or too many adjacent glass blocks found!")
     val pinDirection = direction.clone().rotateAroundY(-0.5*Math.PI /*-90°*/)
 
