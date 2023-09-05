@@ -1,6 +1,7 @@
 package jupiterpi.cranberri
 
 import jupiterpi.cranberri.runtime.Script
+import jupiterpi.cranberri.runtime.api.IO
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 
@@ -39,8 +40,13 @@ class RunningScript(private val computer: Computer, val script: Script) {
         catch (e: Exception) { handleError(e) }
 
         Bukkit.getScheduler().runTaskTimer(plugin, { task ->
-            if (shutdown) task.cancel()
-            else {
+            if (shutdown) {
+                pins.filterIsInstance<OutputPin>().forEach {
+                    it.writeValue(IO.PinValue.LOW)
+                    it.fulfillValue()
+                }
+                task.cancel()
+            } else {
                 try { script.invokeTick() }
                 catch (e: Exception) { handleError(e) }
             }
