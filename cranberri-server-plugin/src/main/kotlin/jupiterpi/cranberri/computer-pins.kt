@@ -41,13 +41,13 @@ fun Computer.loadPins(): List<Pin> {
         Vector(-1, 0, 0),
         Vector(0, 0, 1),
     ).singleOrNull { location.clone().add(it).block.type == PIN_BASE_MATERIAL } ?: throw Exception("No or too many adjacent glass blocks found!")
-    val pinDirection = direction.clone().rotateAroundY(-0.5*Math.PI /*-90°*/)
+    val pinDirections = listOf(1, -1).map { direction.clone().rotateAroundY(-0.5*it*Math.PI /* +/- 90° */) }
 
     val pins = mutableListOf<Pin>()
     val location = location.clone()
     while (location.add(direction)/*has side effect*/.block.type == PIN_BASE_MATERIAL) {
+        val pinDirection = pinDirections.singleOrNull { location.clone().add(it).block.type == PIN_MATERIAL } ?: continue
         val pinLocation = location.clone().add(pinDirection)
-        if (pinLocation.block.type != PIN_MATERIAL) continue
         pins += when ((pinLocation.block.blockData as Repeater).facing.direction) {
             pinDirection -> InputPin(pinLocation)
             pinDirection.clone().rotateAroundY(Math.PI /*180°*/) -> OutputPin(pinLocation)
