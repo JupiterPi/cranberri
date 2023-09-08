@@ -14,6 +14,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.util.Vector
+import java.util.Date
 
 val COMPUTER_MATERIAL = Material.TARGET
 
@@ -67,10 +68,9 @@ class Computer(
                 }
             }
 
-            var invocations = 0
+            val timeoutStart = Date().time
             Bukkit.getScheduler().runTaskTimer(plugin, { task ->
-                invocations++
-                if (invocations > 40) task.cancel()
+                if (Date().time - timeoutStart > 30*1000) task.cancel()
 
                 if (runningScript != null) {
                     task.cancel()
