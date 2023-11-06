@@ -1,7 +1,8 @@
 # Cranberri
 Minecraft microcontrollers mod
 
-See also [cranberri-gui](https://github.com/JupiterPi/cranberri-gui)
+See also [cranberri-gui](https://github.com/JupiterPi/cranberri-gui).
+See also [cranberri-guides](https://github.com/JupiterPi/cranberri-guides) (in German).
 
 ![Cranberri logo](logo.png)
 
