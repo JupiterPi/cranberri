@@ -7,7 +7,6 @@ import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -43,15 +42,18 @@ val loggerToolListener = object : Listener {
         val computer = getComputerBlock(event.clickedBlock)
         if (computer != null) {
             if (computer.runningScript != null) {
-                PlayerLogger.removePlayerLoggers(event.player)
-                computer.runningScript!!.loggers += PlayerLogger(event.player, computer.runningScript!!.script)
-                event.player.sendMessage("Showing logs for computer running ${computer.runningScript!!.script.projectName}:${computer.runningScript!!.script.scriptName}")
+                if (computer.runningScript!!.loggers.none { (it as? PlayerLogger)?.player == event.player }) {
+                    computer.runningScript!!.loggers += PlayerLogger(event.player, computer.runningScript!!.script)
+                }
+                event.player.sendMessage("Showing logs for computer ${computer.runningScript!!.script.shortInstanceId} running ${computer.runningScript!!.script.projectName}:${computer.runningScript!!.script.scriptName}")
             } else {
                 event.player.sendMessage("Computer doesn't have a running script!")
             }
         } else {
-            PlayerLogger.removePlayerLoggers(event.player)
-            event.player.sendMessage("Closing logs")
+            Computers.computers.forEach { computer ->
+                computer.runningScript?.loggers?.removeAll { it is PlayerLogger && it.player == event.player }
+            }
+            event.player.sendMessage("Closing all logs")
         }
 
         event.isCancelled = true

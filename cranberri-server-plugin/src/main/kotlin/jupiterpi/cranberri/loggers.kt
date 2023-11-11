@@ -43,17 +43,9 @@ class PlayerLogger(val player: Player, private val script: Script) : Logger() {
     override fun sendMessage(message: Component) {
         player.sendMessage(Component.join(JoinConfiguration.noSeparators(),
             //Component.text("${script.projectName}/${script.scriptName}/${script.instanceId.substring(0, 4)} ", TextColor.color(Color.GRAY.asRGB())),
-            Component.text("${script.instanceId.substring(0, 6)}: ", TextColor.color(Color.GRAY.asRGB())),
+            Component.text("${script.shortInstanceId}: ", TextColor.color(Color.GRAY.asRGB())),
             message
         ))
-    }
-
-    companion object {
-        fun removePlayerLoggers(player: Player) {
-            Computers.computers.forEach { computer ->
-                computer.runningScript?.loggers?.removeAll { it is PlayerLogger && it.player == player }
-            }
-        }
     }
 }
 

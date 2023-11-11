@@ -15,6 +15,8 @@ class Script private constructor(
     val instanceId: String,
     val scriptName: String,
 ) {
+    val shortInstanceId get() = instanceId.substring(0, 6)
+
     companion object {
         fun compile(projectName: String, script: String): Script {
             val instanceId = UUID.randomUUID().toString().replace("-", "")

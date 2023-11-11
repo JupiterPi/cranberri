@@ -13,7 +13,7 @@ class RunningScript(private val computer: Computer, val script: Script) {
 
     val pins = computer.loadPins()
 
-    val loggers = mutableListOf<Logger>()
+    val loggers = mutableListOf<Logger>(ConsoleLogger(script))
     var doDebug = true
     fun disableDebug() { doDebug = false }
     val logger = object : Logger() {
@@ -22,9 +22,6 @@ class RunningScript(private val computer: Computer, val script: Script) {
         override fun printLog   (msg: String) {              loggers.forEach { it.printLog   (msg) } }
         override fun printError (msg: String) {              loggers.forEach { it.printError (msg) } }
         override fun sendMessage(message: Component) {}
-    }
-    init {
-        loggers += ConsoleLogger(script)
     }
 
     fun start() {
