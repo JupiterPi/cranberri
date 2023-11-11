@@ -67,6 +67,7 @@ object ProjectCompiler {
 class ProjectManifest(
     val projectType: ProjectType,
     val language: ProjectLanguage,
+    val arduinoMode: Boolean = false,
 ) {
     enum class ProjectType {
         SIMPLE, FULL;
