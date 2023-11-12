@@ -54,15 +54,17 @@ object Arduino {
         INPUT, OUTPUT
     }
 
-    //TODO check if called from right context (Arduino + setup/loop)
-
     @JvmStatic fun pinMode(pin: Int, pinMode: PinMode) {
+        if (getScriptContext() != "setup") throw Exception("You can only call pinMode() from within setup()!")
+
         println("setting pin mode: $pin to $pinMode")
         //TODO implement
     }
 
     class Delay(ticks: Int) {
         init {
+            if (getScriptContext() != "loop") throw Exception("You can only call delay() from within loop()!")
+
             val runningScript = getComputer()?.runningScript as ArduinoModeRunningScript?
             if (runningScript != null) {
                 runningScript.delayScript(ticks)
@@ -73,6 +75,8 @@ object Arduino {
             }
         }
     }
+
+    private fun getScriptContext() = Thread.currentThread().stackTrace.last { it.className.startsWith("cranberri_project_") }.methodName
 }
 
 private fun getComputer(): Computer? {
