@@ -4,6 +4,7 @@ import jupiterpi.cranberri.runtime.Script
 import jupiterpi.cranberri.runtime.api.IO
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
+import kotlin.concurrent.thread
 
 open class RunningScript(private val computer: Computer, val script: Script) {
     companion object {
@@ -62,5 +63,35 @@ open class RunningScript(private val computer: Computer, val script: Script) {
     fun deactivate() {
         shutdown = true
         logger.printSystem("Shutting down")
+    }
+}
+
+class ArduinoModeRunningScript(computer: Computer, script: Script) : RunningScript(computer, script) {
+    var delayed = false
+    private var loopsWithoutDelay = 0
+
+    fun delayScript(ticks: Int) {
+        delayed = true
+        loopsWithoutDelay = 0
+        Bukkit.getScheduler().runTaskLater(plugin, { _ -> delayed = false }, ticks.toLong())
+    }
+
+    override fun startScript(invokeTickOrLoop: () -> Unit) {
+        thread(name = "Arduino_${script.instanceId}") {
+            while (true) {
+                if (shutdown) break
+
+                invokeTickOrLoop()
+                loopsWithoutDelay++
+
+                if (loopsWithoutDelay >= 2) {
+                    delayScript(1)
+                    while (delayed) {
+                        if (shutdown) break
+                        Thread.sleep(10)
+                    }
+                }
+            }
+        }
     }
 }
