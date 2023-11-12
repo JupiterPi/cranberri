@@ -22,7 +22,7 @@ object ProjectCompiler {
         File(PROJECTS_OUT_ROOT).listFiles()?.forEach { it.deleteRecursively() }
     }
 
-    fun compileProject(projectName: String, instanceId: String) {
+    fun compileProject(projectName: String, instanceId: String): ProjectManifest {
         if (projectName.contains("-")) throw Exception("Invalid project name: Mustn't include '-'")
 
         TextFile.createPath(PROJECTS_OUT_ROOT)
@@ -41,12 +41,13 @@ object ProjectCompiler {
         lookForSourceFiles(File("$PROJECTS_ROOT/$projectName/lib"), false)
 
         val manifest = ProjectManifest.read(File("$PROJECTS_ROOT/$projectName/project.yaml"))
+        if (manifest.arduinoMode && (manifest.projectType != ProjectManifest.ProjectType.SIMPLE || manifest.language != ProjectManifest.ProjectLanguage.JAVA)) throw Exception("Invalid project configuration: Arduino mode is only allowed for Java/simpe projects!")
 
         val compiler = when (manifest.projectType) {
             ProjectManifest.ProjectType.SIMPLE -> SimpleProjectCompiler
             ProjectManifest.ProjectType.FULL -> FullProjectCompiler
         }
-        files.set(compiler.compileProject(files, "cranberri_project_$projectName.instance_$instanceId", manifest.language))
+        files.set(compiler.compileProject(files, "cranberri_project_$projectName.instance_$instanceId", manifest.language, manifest.arduinoMode))
 
         files.forEach {
             TextFile(it.source).writeFile("$PROJECTS_OUT_ROOT/$projectName-$instanceId/${it.path}")
@@ -61,12 +62,15 @@ object ProjectCompiler {
             it.inputStream.transferTo(System.out)
             it.errorStream.transferTo(System.err)
         }
+
+        return manifest
     }
 }
 
 class ProjectManifest(
     val projectType: ProjectType,
     val language: ProjectLanguage,
+    val arduinoMode: Boolean = false,
 ) {
     enum class ProjectType {
         SIMPLE, FULL;
@@ -112,5 +116,5 @@ class SourceFile(
 }
 
 interface SpecificProjectCompiler {
-    fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage): List<SourceFile>
+    fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage, arduinoMode: Boolean): List<SourceFile>
 }

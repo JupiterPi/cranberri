@@ -1,14 +1,18 @@
 package jupiterpi.cranberri
 
 import jupiterpi.cranberri.runtime.Script
+import jupiterpi.cranberri.runtime.api.Arduino
 import jupiterpi.cranberri.runtime.api.IO
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
+import kotlin.concurrent.thread
 
-class RunningScript(private val computer: Computer, val script: Script) {
+open class RunningScript(private val computer: Computer, val script: Script) {
     companion object {
-        fun compile(computer: Computer, projectName: String, scriptName: String)
-        = RunningScript(computer, Script.compile(projectName, scriptName))
+        fun compile(computer: Computer, projectName: String, scriptName: String): RunningScript {
+            val script = Script.compile(projectName, scriptName)
+            return if (!script.arduinoMode) RunningScript(computer, script) else ArduinoModeRunningScript(computer, script)
+        }
     }
 
     val pins = computer.loadPins()
@@ -36,6 +40,13 @@ class RunningScript(private val computer: Computer, val script: Script) {
         try { script.invokeSetup() }
         catch (e: Exception) { handleError(e) }
 
+        startScript {
+            try { script.invokeTickOrLoop() }
+            catch (e: Exception) { handleError(e) }
+        }
+    }
+
+    protected open fun startScript(invokeTickOrLoop: () -> Unit) {
         Bukkit.getScheduler().runTaskTimer(plugin, { task ->
             if (shutdown) {
                 pins.filterIsInstance<OutputPin>().forEach {
@@ -44,15 +55,53 @@ class RunningScript(private val computer: Computer, val script: Script) {
                 }
                 task.cancel()
             } else {
-                try { script.invokeTick() }
-                catch (e: Exception) { handleError(e) }
+                invokeTickOrLoop()
             }
         }, 0, 2)
     }
 
-    private var shutdown = false
+    var shutdown = false
     fun deactivate() {
         shutdown = true
         logger.printSystem("Shutting down")
+    }
+}
+
+class ArduinoModeRunningScript(computer: Computer, script: Script) : RunningScript(computer, script) {
+    val pinModesSet = mutableSetOf<Int>()
+
+    fun setPinMode(pin: Int, mode: Arduino.PinMode) {
+        if ((mode == Arduino.PinMode.INPUT && pins[pin-1] !is InputPin) || (mode == Arduino.PinMode.OUTPUT && pins[pin-1] !is OutputPin)) {
+            throw Exception("Tried to set to wrong pin mode!")
+        }
+        pinModesSet += pin
+    }
+
+    var delayed = false
+    private var loopsWithoutDelay = 0
+
+    fun delayScript(ticks: Int) {
+        delayed = true
+        loopsWithoutDelay = 0
+        Bukkit.getScheduler().runTaskLater(plugin, { _ -> delayed = false }, ticks.toLong())
+    }
+
+    override fun startScript(invokeTickOrLoop: () -> Unit) {
+        thread(name = "Arduino_${script.instanceId}") {
+            while (true) {
+                if (shutdown) break
+
+                invokeTickOrLoop()
+                loopsWithoutDelay++
+
+                if (loopsWithoutDelay >= 2) {
+                    delayScript(1)
+                    while (delayed) {
+                        if (shutdown) break
+                        Thread.sleep(10)
+                    }
+                }
+            }
+        }
     }
 }

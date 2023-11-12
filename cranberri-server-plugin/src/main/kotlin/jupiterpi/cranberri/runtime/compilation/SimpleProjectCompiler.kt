@@ -1,7 +1,7 @@
 package jupiterpi.cranberri.runtime.compilation
 
 object SimpleProjectCompiler : SpecificProjectCompiler {
-    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage): List<SourceFile> {
+    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage, arduinoMode: Boolean): List<SourceFile> {
         /**
          * optional semicolon
          */
@@ -9,6 +9,7 @@ object SimpleProjectCompiler : SpecificProjectCompiler {
 
         val setupDefinition = if (language == ProjectManifest.ProjectLanguage.KOTLIN) "fun setup()" else "void setup()"
         val tickDefinition = if (language == ProjectManifest.ProjectLanguage.KOTLIN) "fun tick()" else "void tick()"
+        val loopDefinition = if (language == ProjectManifest.ProjectLanguage.KOTLIN) "fun loop()" else "void loop()"
         val optionalImportStatic = if (language == ProjectManifest.ProjectLanguage.JAVA) " static" else ""
         val standardImports = """
             import jupiterpi.cranberri.runtime.api.Script$s
@@ -21,6 +22,11 @@ object SimpleProjectCompiler : SpecificProjectCompiler {
             import$optionalImportStatic jupiterpi.cranberri.runtime.api.IO.readPin$s
             import jupiterpi.cranberri.runtime.api.IO.PinValue$s
             import$optionalImportStatic jupiterpi.cranberri.runtime.api.IO.PinValue.*$s
+            ${if (arduinoMode) """
+                import jupiterpi.cranberri.runtime.api.Loop$s
+                import $optionalImportStatic jupiterpi.cranberri.runtime.api.Arduino.pinMode$s
+                import $optionalImportStatic jupiterpi.cranberri.runtime.api.Arduino.PinMode.*$s
+            """ else ""}
         """.trimIndent()
 
         val sourceFiles = sourceFiles.toMutableList()
@@ -39,6 +45,9 @@ object SimpleProjectCompiler : SpecificProjectCompiler {
 
                 file.source = file.source.replace(setupDefinition, "@Setup $setupDefinition")
                 file.source = file.source.replace(tickDefinition, "@Tick $tickDefinition")
+                file.source = file.source.replace(loopDefinition, "@Loop $loopDefinition")
+
+                file.source = file.source.replace(Regex("delay\\(([0-9]*)\\)")) { "new jupiterpi.cranberri.runtime.api.Arduino.Delay(${it.groupValues[1]})" }
 
                 val extractedImportLines = extractImportLines(file.source)
                 file.source = """

@@ -1,7 +1,7 @@
 package jupiterpi.cranberri.runtime.compilation
 
 object FullProjectCompiler : SpecificProjectCompiler {
-    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage): List<SourceFile> {
+    override fun compileProject(sourceFiles: List<SourceFile>, packageName: String, language: ProjectManifest.ProjectLanguage, arduinoMode: Boolean): List<SourceFile> {
         /**
          * optional semicolon
          */
