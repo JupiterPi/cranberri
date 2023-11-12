@@ -8,3 +8,6 @@ annotation class Setup
 
 @Target(AnnotationTarget.FUNCTION)
 annotation class Tick
+
+@Target(AnnotationTarget.FUNCTION)
+annotation class Loop

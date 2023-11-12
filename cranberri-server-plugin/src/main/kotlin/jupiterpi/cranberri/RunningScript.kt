@@ -5,10 +5,12 @@ import jupiterpi.cranberri.runtime.api.IO
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 
-class RunningScript(private val computer: Computer, val script: Script) {
+open class RunningScript(private val computer: Computer, val script: Script) {
     companion object {
-        fun compile(computer: Computer, projectName: String, scriptName: String)
-        = RunningScript(computer, Script.compile(projectName, scriptName))
+        fun compile(computer: Computer, projectName: String, scriptName: String): RunningScript {
+            val script = Script.compile(projectName, scriptName)
+            return if (!script.arduinoMode) RunningScript(computer, script) else ArduinoModeRunningScript(computer, script)
+        }
     }
 
     val pins = computer.loadPins()
@@ -36,6 +38,13 @@ class RunningScript(private val computer: Computer, val script: Script) {
         try { script.invokeSetup() }
         catch (e: Exception) { handleError(e) }
 
+        startScript {
+            try { script.invokeTickOrLoop() }
+            catch (e: Exception) { handleError(e) }
+        }
+    }
+
+    protected open fun startScript(invokeTickOrLoop: () -> Unit) {
         Bukkit.getScheduler().runTaskTimer(plugin, { task ->
             if (shutdown) {
                 pins.filterIsInstance<OutputPin>().forEach {
@@ -44,13 +53,12 @@ class RunningScript(private val computer: Computer, val script: Script) {
                 }
                 task.cancel()
             } else {
-                try { script.invokeTick() }
-                catch (e: Exception) { handleError(e) }
+                invokeTickOrLoop()
             }
         }, 0, 2)
     }
 
-    private var shutdown = false
+    var shutdown = false
     fun deactivate() {
         shutdown = true
         logger.printSystem("Shutting down")
