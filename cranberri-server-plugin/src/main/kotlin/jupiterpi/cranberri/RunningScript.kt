@@ -1,6 +1,7 @@
 package jupiterpi.cranberri
 
 import jupiterpi.cranberri.runtime.Script
+import jupiterpi.cranberri.runtime.api.Arduino
 import jupiterpi.cranberri.runtime.api.IO
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
@@ -67,6 +68,15 @@ open class RunningScript(private val computer: Computer, val script: Script) {
 }
 
 class ArduinoModeRunningScript(computer: Computer, script: Script) : RunningScript(computer, script) {
+    val pinModesSet = mutableSetOf<Int>()
+
+    fun setPinMode(pin: Int, mode: Arduino.PinMode) {
+        if ((mode == Arduino.PinMode.INPUT && pins[pin-1] !is InputPin) || (mode == Arduino.PinMode.OUTPUT && pins[pin-1] !is OutputPin)) {
+            throw Exception("Tried to set to wrong pin mode!")
+        }
+        pinModesSet += pin
+    }
+
     var delayed = false
     private var loopsWithoutDelay = 0
 

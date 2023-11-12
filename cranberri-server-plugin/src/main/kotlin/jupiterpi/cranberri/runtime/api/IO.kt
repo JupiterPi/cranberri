@@ -28,6 +28,8 @@ object IO {
 
     @JvmStatic fun writePin(pin: Int, value: PinValue) {
         val runningScript = getComputer()?.runningScript ?: return
+        assertModeSet(pin)
+
         runningScript.pins[pin-1].let {
             if (it is OutputPin) it.writeValue(value) else throw Exception("Tried to write to input pin!")
         }
@@ -41,10 +43,17 @@ object IO {
 
     @JvmStatic fun readPin(pin: Int): PinValue {
         val runningScript = getComputer()?.runningScript ?: return PinValue.LOW
+        assertModeSet(pin)
+
         runningScript.logger.printDebug("in $pin")
         runningScript.pins[pin-1].let {
             if (it is InputPin) return it.readValue() else throw Exception("Tried to write to input pin!")
         }
+    }
+
+    private fun assertModeSet(pin: Int) {
+        val runningScript = getComputer()?.runningScript ?: return
+        if (runningScript is ArduinoModeRunningScript && !runningScript.pinModesSet.contains(pin)) throw Exception("Tried to access pin without mode set!")
     }
 }
 
@@ -54,11 +63,11 @@ object Arduino {
         INPUT, OUTPUT
     }
 
-    @JvmStatic fun pinMode(pin: Int, pinMode: PinMode) {
+    @JvmStatic fun pinMode(pin: Int, mode: PinMode) {
         if (getScriptContext() != "setup") throw Exception("You can only call pinMode() from within setup()!")
 
-        println("setting pin mode: $pin to $pinMode")
-        //TODO implement
+        val runningScript = (getComputer()?.runningScript as ArduinoModeRunningScript?) ?: return
+        runningScript.setPinMode(pin, mode)
     }
 
     class Delay(ticks: Int) {
