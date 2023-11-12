@@ -41,7 +41,7 @@ object ProjectCompiler {
         lookForSourceFiles(File("$PROJECTS_ROOT/$projectName/lib"), false)
 
         val manifest = ProjectManifest.read(File("$PROJECTS_ROOT/$projectName/project.yaml"))
-        if (manifest.arduinoMode && (manifest.projectType != ProjectManifest.ProjectType.SIMPLE || manifest.language != ProjectManifest.ProjectLanguage.JAVA)) throw Exception("Invalid project configuration: Arduino mode is only allowed for Java/simpe projects!")
+        if (manifest.arduinoMode && (manifest.projectType != ProjectManifest.ProjectType.SIMPLE || manifest.language != ProjectManifest.ProjectLanguage.JAVA)) throw Exception("Invalid project configuration: Arduino mode is only allowed for Java/simple projects!")
 
         val compiler = when (manifest.projectType) {
             ProjectManifest.ProjectType.SIMPLE -> SimpleProjectCompiler

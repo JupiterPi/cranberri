@@ -34,7 +34,7 @@ open class RunningScript(private val computer: Computer, val script: Script) {
         fun handleError(e: Exception) {
             computer.status = Computer.Status.ERROR
             e.cause?.printStackTrace() ?: e.printStackTrace()
-            computer.runningScript?.logger?.printError(e.cause.toString())
+            computer.runningScript?.logger?.printError(if (e.cause is CranberriRuntimeError) e.cause!!.message!! else e.cause.toString())
         }
 
         try { script.invokeSetup() }
@@ -72,7 +72,7 @@ class ArduinoModeRunningScript(computer: Computer, script: Script) : RunningScri
 
     fun setPinMode(pin: Int, mode: Arduino.PinMode) {
         if ((mode == Arduino.PinMode.INPUT && pins[pin-1] !is InputPin) || (mode == Arduino.PinMode.OUTPUT && pins[pin-1] !is OutputPin)) {
-            throw Exception("Tried to set to wrong pin mode!")
+            throw CranberriRuntimeError("Tried to set to wrong pin mode!")
         }
         pinModesSet += pin
     }
@@ -105,3 +105,5 @@ class ArduinoModeRunningScript(computer: Computer, script: Script) : RunningScri
         }
     }
 }
+
+class CranberriRuntimeError(msg: String): Exception(msg)

@@ -31,7 +31,7 @@ object IO {
         assertModeSet(pin)
 
         runningScript.pins[pin-1].let {
-            if (it is OutputPin) it.writeValue(value) else throw Exception("Tried to write to input pin!")
+            if (it is OutputPin) it.writeValue(value) else throw CranberriRuntimeError("Tried to write to input pin!")
         }
 
         val valueStr = when (value) {
@@ -47,13 +47,13 @@ object IO {
 
         runningScript.logger.printDebug("in $pin")
         runningScript.pins[pin-1].let {
-            if (it is InputPin) return it.readValue() else throw Exception("Tried to write to input pin!")
+            if (it is InputPin) return it.readValue() else throw CranberriRuntimeError("Tried to write to input pin!")
         }
     }
 
     private fun assertModeSet(pin: Int) {
         val runningScript = getComputer()?.runningScript ?: return
-        if (runningScript is ArduinoModeRunningScript && !runningScript.pinModesSet.contains(pin)) throw Exception("Tried to access pin without mode set!")
+        if (runningScript is ArduinoModeRunningScript && !runningScript.pinModesSet.contains(pin)) throw CranberriRuntimeError("Tried to access pin without mode set!")
     }
 }
 
@@ -64,7 +64,7 @@ object Arduino {
     }
 
     @JvmStatic fun pinMode(pin: Int, mode: PinMode) {
-        if (getScriptContext() != "setup") throw Exception("You can only call pinMode() from within setup()!")
+        if (getScriptContext() != "setup") throw CranberriRuntimeError("You can only call pinMode() from within setup()!")
 
         val runningScript = (getComputer()?.runningScript as ArduinoModeRunningScript?) ?: return
         runningScript.setPinMode(pin, mode)
@@ -72,7 +72,7 @@ object Arduino {
 
     class Delay(ticks: Int) {
         init {
-            if (getScriptContext() != "loop") throw Exception("You can only call delay() from within loop()!")
+            if (getScriptContext() != "loop") throw CranberriRuntimeError("You can only call delay() from within loop()!")
 
             val runningScript = getComputer()?.runningScript as ArduinoModeRunningScript?
             if (runningScript != null) {
