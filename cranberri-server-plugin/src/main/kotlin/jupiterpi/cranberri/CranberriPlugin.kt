@@ -4,6 +4,8 @@ import jupiterpi.cranberri.runtime.compilation.ProjectCompiler
 import jupiterpi.cranberri.tools.computerToolListener
 import jupiterpi.cranberri.tools.loggerToolListener
 import jupiterpi.cranberri.tools.toolsCommand
+import jupiterpi.cranberri.util.DATA_ROOT
+import jupiterpi.cranberri.util.TextFile
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.Style
@@ -15,8 +17,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
-import jupiterpi.cranberri.util.DATA_ROOT
-import jupiterpi.cranberri.util.TextFile
 
 val cranberriLettering = Component.join(JoinConfiguration.noSeparators(),
     Component.text("Cranberri", Style.style(TextColor.color(Color.WHITE.asRGB()), TextDecoration.BOLD)),
@@ -42,6 +42,7 @@ class CranberriPlugin : JavaPlugin(), Listener {
         getCommand("cranberri")!!.setExecutor(toolsCommand)
         Bukkit.getPluginManager().registerEvents(loggerToolListener, this)
         Bukkit.getPluginManager().registerEvents(computerToolListener, this)
+        Bukkit.getPluginManager().registerEvents(outputPinListener, this)
 
         // computers
 

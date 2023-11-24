@@ -4,6 +4,9 @@ import jupiterpi.cranberri.runtime.api.IO
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.data.type.Repeater
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.block.BlockRedstoneEvent
 import org.bukkit.util.Vector
 
 val PIN_BASE_MATERIAL = Material.GLASS
@@ -14,15 +17,27 @@ open class Pin(
 )
 
 class OutputPin(location: Location) : Pin(location) {
-    private var value = IO.PinValue.LOW
+    var value = IO.PinValue.LOW
 
     fun writeValue(value: IO.PinValue) {
         this.value = value
-    }
-
-    fun fulfillValue() {
         location.block.blockData = (location.block.blockData as Repeater).also {
             it.isPowered = value.toBoolean()
+        }
+    }
+}
+
+val outputPinListener = object : Listener {
+    @EventHandler
+    @Suppress("unused")
+    fun onRedstone(event: BlockRedstoneEvent) {
+        if (event.block.type == Material.REPEATER) {
+            for (computer in Computers.computers) {
+                if (computer.runningScript == null) continue
+                val pin = computer.runningScript!!.pins.filterIsInstance<OutputPin>().singleOrNull { it.location == event.block.location } ?: continue
+                event.newCurrent = if (pin.value == IO.PinValue.HIGH) 15 else 0
+                break
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.util.Vector
-import java.util.Date
+import java.util.*
 
 val COMPUTER_MATERIAL = Material.TARGET
 
@@ -93,12 +93,6 @@ object Computers {
     fun createComputer(block: Block): Computer {
         block.type = COMPUTER_MATERIAL
         return Computer(block.location).also { computers += it }
-    }
-
-    init {
-        Bukkit.getScheduler().runTaskTimer(plugin, { _ ->
-            computers.forEach { it.runningScript?.pins?.forEach { if (it is OutputPin) it.fulfillValue() } }
-        }, 0, 1)
     }
 
     // persistence

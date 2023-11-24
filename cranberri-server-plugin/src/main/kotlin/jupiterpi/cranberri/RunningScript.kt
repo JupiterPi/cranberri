@@ -49,10 +49,7 @@ open class RunningScript(private val computer: Computer, val script: Script) {
     protected open fun startScript(invokeTickOrLoop: () -> Unit) {
         Bukkit.getScheduler().runTaskTimer(plugin, { task ->
             if (shutdown) {
-                pins.filterIsInstance<OutputPin>().forEach {
-                    it.writeValue(IO.PinValue.LOW)
-                    it.fulfillValue()
-                }
+                pins.filterIsInstance<OutputPin>().forEach { it.writeValue(IO.PinValue.LOW) }
                 task.cancel()
             } else {
                 invokeTickOrLoop()
